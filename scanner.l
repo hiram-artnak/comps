@@ -8,20 +8,22 @@
 
 
   /* yywrap is useless and better handled by other IO functions. */
-%option noyywrap
+ // %option noyywrap
+ // OK I WILL KEEP IT IN CAUSE I DONT KNOW WHAT YOUR MAIN FUNC IS DOING!!!
+ // BUT LET IT BE KNOWN
+ // I DO IT UNDER PROTEST
 
   /* Automatically count lines (required by the specification) */
 %option yylineno
 
-  /*The default rule is bad to us, so we disable it*/ 
 
 
   /* C code */
 %{
   /*Tokens are defined in tokens.h by the professor*/
   #include "tokens.h"
+  #include <stdio.h>
   /* It is our responsibility to initialize yylineno*/
-  int yylineno = 1;
 
 
   int get_line_number();
@@ -30,7 +32,7 @@
   /* Substitution rules */
 DIG [0-9]
 LETTER [a-zA-Z]
-SPECIAL [!*/%+-<>{}()=,;]
+SPECIAL [!*\/%+\\\-<>{}()=,;]
 SPACE " "
 
   /* States */
@@ -71,17 +73,21 @@ SPACE " "
 "==" { return TK_OC_EQ;}
 "!=" { return TK_OC_NE;}
 "&" { return TK_OC_AND;}
-"|" { return TK_OC_OR;}
+"|" { return TK_OC_OR; }
 
   /* Identifiers */
 ({LETTER}|_)({LETTER}|{DIG}|"_")* { return TK_IDENTIFICADOR;}
 
+{SPECIAL} { return yytext[0]; }
+
+\n {}
+
 . {return TK_ERRO;}
 
-\n {mylineno++;}
 %%
 
 int get_line_number(){
   return yylineno; 
 }
+
 /* End of the file */
