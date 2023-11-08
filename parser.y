@@ -39,39 +39,79 @@ list: element;
 element: function; 
 element: global_variable_declaration;
 
-
+    /* Types*/
 type: TK_PR_INT;
 type: TK_PR_BOOL;
 type: TK_PR_FLOAT;
 
 
-
+    /* GLOBAL VARIABLE DECLARATION */
 
 global_variable: type TK_IDENTIFICADOR;
 global_variable_name: TK_IDENTIFICADOR; 
-
+list_of_variable_names: global_variable_name ',' list_of_variable_names | global_variable_name ;
 
 
 global_variable_declaration: type list_of_variable_names ';' ;
 
-list_of_variable_names: global_variable_name ',' list_of_variable_names | global_variable_name ;
 
 
+
+    /* FUNCTION HEADER */
+
+function_name: TK_IDENTIFICADOR; 
 list_of_variables: global_variable ',' list_of_variables | global_variable;
-
-
-
-function_name: TK_IDENTIFICADOR;
-
-function_body: '{' '}';
+list_of_parameters: '(' list_of_variables ')';
+return_type: type '!';
 
 function_header: list_of_parameters return_type function_name;
 
-list_of_parameters: '(' list_of_variables ')';
 
-return_type: type '!';
+    /* FUNCTION BODY */
 
-function: function_header function_body;
+    /* COMMAND */ 
+
+command:  variable_declaration | attribution | function_command | return_command | flux_control_commands;
+
+expression: TK_IDENTIFICADOR;
+
+attribution: TK_IDENTIFICADOR '=' expression;
+
+return_command: TK_PR_RETURN expression;
+
+arguments: list_of_variable_names | expression | arguments; 
+function_command: function_name '(' arguments ')' ;
+
+variable_declaration: type list_of_variable_names ;
+
+
+
+    /* FLUX CONTROL COMMANDS */
+
+flux_control_commands: if_command | while_command;
+
+while_command: TK_PR_WHILE '(' expression ')' '{' command_block '}';
+
+if_command: TK_PR_IF '(' expression ')' '{' command_block '}'
+if_command: TK_PR_IF '(' expression ')' '{' command_block '}' TK_PR_ELSE '(' expression ')' '{' command_block '}';
+
+
+
+    /*COMMAND BLOCK */
+
+list_of_commands: command ';' list_of_commands |  /* vazio*/; 
+
+command_block: list_of_commands;
+
+    /* FUNCTION BODY */
+function_body: '{' command_block '}';
+
+
+
+
+/* function: function_header function_body; */
+
+function: function_body;
 
 %%
 
