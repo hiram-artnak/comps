@@ -45,6 +45,10 @@ type: TK_PR_BOOL;
 type: TK_PR_FLOAT;
 
 
+    /* Literals*/
+literal: TK_LIT_INT | TK_LIT_FLOAT | TK_LIT_FALSE | TK_LIT_TRUE;
+
+
     /* GLOBAL VARIABLE DECLARATION */
 
 global_variable: type TK_IDENTIFICADOR;
@@ -71,16 +75,14 @@ function_header: list_of_parameters return_type function_name;
 
     /* COMMAND */ 
 
-command:  variable_declaration | attribution | function_command | return_command | flux_control_commands;
-
-expression: TK_IDENTIFICADOR;
+command:  variable_declaration | attribution | function_call | return_command | flux_control_commands;
 
 attribution: TK_IDENTIFICADOR '=' expression;
 
 return_command: TK_PR_RETURN expression;
 
 arguments: list_of_variable_names | expression | arguments; 
-function_command: function_name '(' arguments ')' ;
+function_call: function_name '(' arguments ')' ;
 
 variable_declaration: type list_of_variable_names ;
 
@@ -103,18 +105,57 @@ list_of_commands: command ';' list_of_commands |  /* vazio*/;
 
 command_block: list_of_commands;
 
+
+
+
+
+
+
+    /* EXPRESSION */
+
+operand: TK_IDENTIFICADOR | function_call | literal; 
+
+operator: operator first_priority_operator | operator binary_operator | /*vazio*/;
+
+
+expression: expression| operand | first_priority_operator;
+
+binary_operator: second_priority_operator | third_priority_operator | fourth_priority_operator | fifth_priority_operator | sixth_priority_operator | seventh_priority_operator;
+
+
+first_priority_operator: '-' operand  | '!' operand  | second_priority_operator; 
+
+
+second_priority_operator: '*' operand | '/' operand | '%' operand | third_priority_operator ;
+
+
+third_priority_operator: '+' operand | '+' operator | '-' operand  ; 
+
+
+fourth_priority_operator: '>' operand | '<' operand | TK_OC_LE operand | TK_OC_GE operand ;
+
+
+fifth_priority_operator: TK_OC_EQ operand | TK_OC_NE operand ;
+
+
+sixth_priority_operator: TK_OC_AND operand ;
+
+
+seventh_priority_operator: TK_OC_OR operand ;
+
+
     /* FUNCTION BODY */
 function_body: '{' command_block '}';
 
 
 
-
+    /* FUNCTION */
 /* function: function_header function_body; */
 
-function: function_body;
+function: expression;
 
 %%
 
 void yyerror (char const *s) {
     fprintf (stderr, "In line %d... %s.\n", get_line_number(), s);
-}
+} 
