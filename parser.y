@@ -30,14 +30,20 @@ void yyerror (char const *mensagem);
 
 %%
 
-programa: list;
-programa: /* vazio */;
+/* program: list; */
+
+program: list;
+program: /* vazio */;
 
 list: list element;
 list: element;
 
 element: function; 
 element: global_variable_declaration;
+
+
+
+
 
     /* Types*/
 type: TK_PR_INT;
@@ -47,6 +53,8 @@ type: TK_PR_FLOAT;
 
     /* Literals*/
 literal: TK_LIT_INT | TK_LIT_FLOAT | TK_LIT_FALSE | TK_LIT_TRUE;
+
+
 
 
     /* GLOBAL VARIABLE DECLARATION */
@@ -115,33 +123,39 @@ command_block: list_of_commands;
 
 operand: TK_IDENTIFICADOR | function_call | literal; 
 
-operator: operator first_priority_operator | operator binary_operator | /*vazio*/;
+operator: operator first_priority_operator| /*vazio*/;
 
 
-expression: expression| operand | first_priority_operator;
+expression: expression| operand expression | first_priority_operator | operand;
 
 binary_operator: second_priority_operator | third_priority_operator | fourth_priority_operator | fifth_priority_operator | sixth_priority_operator | seventh_priority_operator;
 
 
-first_priority_operator: '-' operand  | '!' operand  | second_priority_operator; 
+first_priority_operator: '-' operand expression | '!' operand  expression | '!' operand | '-' operand; 
+first_priority_operator: second_priority_operator;
 
 
-second_priority_operator: '*' operand | '/' operand | '%' operand | third_priority_operator ;
+second_priority_operator: '*' operand | '*' expression | '/' operand | '/' expression | '%' operand | '%' expression;
+second_priority_operator: third_priority_operator ;
 
 
-third_priority_operator: '+' operand | '+' operator | '-' operand  ; 
+third_priority_operator: '+' operand | '+' expression | '-' expression  | '-' operand ; /* Tem que ver como diferenciar os "-" */
+third_priority_operator: fourth_priority_operator; 
 
 
-fourth_priority_operator: '>' operand | '<' operand | TK_OC_LE operand | TK_OC_GE operand ;
+fourth_priority_operator: '>' operand | '>' expression | '<' operand | '<' expression ;
+fourth_priority_operator:  TK_OC_LE operand | TK_OC_LE expression | TK_OC_GE operand | TK_OC_GE expression;
+fourth_priority_operator: fifth_priority_operator; 
 
 
-fifth_priority_operator: TK_OC_EQ operand | TK_OC_NE operand ;
+fifth_priority_operator: TK_OC_EQ operand | TK_OC_EQ expression | TK_OC_NE operand | TK_OC_NE expression ;
+fifth_priority_operator: sixth_priority_operator;
+
+sixth_priority_operator: TK_OC_AND operand  | TK_OC_AND expression;
+sixth_priority_operator: seventh_priority_operator;
 
 
-sixth_priority_operator: TK_OC_AND operand ;
-
-
-seventh_priority_operator: TK_OC_OR operand ;
+seventh_priority_operator: TK_OC_OR operand | TK_OC_OR expression ;
 
 
     /* FUNCTION BODY */
@@ -152,7 +166,7 @@ function_body: '{' command_block '}';
     /* FUNCTION */
 /* function: function_header function_body; */
 
-function: expression;
+function: '{'  expression '}';
 
 %%
 
