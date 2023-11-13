@@ -21,9 +21,8 @@
   /* C code */
 %{
   /*Tokens are defined in tokens.h by the professor*/
-    /* #include "tokens.h" */
+  #include "tokens.h"
   #include <stdio.h>
-  #include "parser.tab.h"
   /* It is our responsibility to initialize yylineno*/
 
 
@@ -33,6 +32,7 @@
   /* Substitution rules */
 DIG [0-9]
 LETTER [a-zA-Z]
+MIN_LETTER [a-z]
 SPECIAL [!*\/%+\\\-<>{}()=,;]
 SPACE " "
 
@@ -65,8 +65,9 @@ SPACE " "
   /* Literals */
 "false" { return TK_LIT_FALSE;}
 "true" { return TK_LIT_TRUE;}
+{DIG}*\.{DIG}+ { return TK_LIT_FLOAT;}
 {DIG}+ { return TK_LIT_INT;}
-{DIG}?\.{DIG}+ { return TK_LIT_FLOAT;}
+
 
   /* Composite Operators */
 "<=" { return TK_OC_LE;}
@@ -77,7 +78,7 @@ SPACE " "
 "|" { return TK_OC_OR; }
 
   /* Identifiers */
-({LETTER}|_)({LETTER}|{DIG}|"_")* { return TK_IDENTIFICADOR;}
+({MIN_LETTER}|_)({LETTER}|{DIG}|"_")* { return TK_IDENTIFICADOR;}
 
 {SPECIAL} { return yytext[0]; }
 
