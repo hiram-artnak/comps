@@ -1,6 +1,7 @@
 %{
 #include "parser.tab.h"
 #include <stdio.h>
+#include <stdlib.h>
 extern int get_line_number();
 int yylex(void);
 void yyerror (char const *mensagem);
@@ -35,6 +36,7 @@ void yyerror (char const *mensagem);
 program: /* empty */
     | program var_declaration
     | program function
+    | expr
     ;
 
 /* A variable declaration is a type followed by a list of identifiers */
@@ -74,7 +76,7 @@ param: type TK_IDENTIFICADOR
 
 /* A block is a list of statements surrounded by curly braces */
 /* The list of statements may be empty */
-block: '{' statement_list '}'
+block: '{' statement_list '}' ';'
     ;
 
 /* A statement list is a (possibly empty) list of statements */
@@ -88,27 +90,27 @@ statement_list:
 statement:
     var_declaration
     | block
-    | function_call ';'
-    | attribution ';'
-    | return_statement ';'
+    | function_call
+    | attribution
+    | return_statement
     | control_statement
     ;
 
 /* A function call is an identifier followed by a list of expressions surrounded by parentheses */
 function_call:
-    TK_IDENTIFICADOR '(' expr_list ')'
+    TK_IDENTIFICADOR '(' expr_list ')' ';'
     ;
 
 
 /* An attribution is an identifier followed by the '=' token followed by an expression */
 attribution:
-    TK_IDENTIFICADOR '=' expr
+    TK_IDENTIFICADOR '=' expr ';'
     ;
 
 
 /* A return statement is the TK_PR_RETURN token followed by an expression */
 return_statement:
-    TK_PR_RETURN expr
+    TK_PR_RETURN expr ';'
     ;
 
 
@@ -142,7 +144,7 @@ expr_list:
 /* An operand is an identifier, a literal or a function call */
 operand:
     TK_IDENTIFICADOR
-    | literal
+    | literal 
     | function_call
     ;
 
@@ -155,7 +157,7 @@ literal:
     ;
 
 /* A parenthesis expression is an expression surrounded by parentheses */
-parenthesis_expr: operand
+parenthesis_expr: operand 
     | '(' expr ')'
     ;
 
@@ -167,15 +169,15 @@ unary_expr: parenthesis_expr
 
 /* a factor is a multiplication, division or modulo operation */
 factor: unary_expr
-    | factor '*' unary_expr
-    | factor '/' unary_expr
+    | factor '*' unary_expr {{printf("Mult!");}}
+    | factor '/' unary_expr {{printf("Div!");}}
     | factor '%' unary_expr
     ;
 
 /* a term is an addition or subtraction operation */
 term: factor
-    | term '+' factor
-    | term '-' factor
+    | term '+' factor {{printf("Sum!");}}
+    | term '-' factor {{printf("Sub!");}}
     ;
 
 
