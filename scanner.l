@@ -21,8 +21,8 @@
   /* C code */
 %{
   /*Tokens are defined in tokens.h by the professor*/
-  #include "tokens.h"
   #include <stdio.h>
+  #include "parser.tab.h"
   /* It is our responsibility to initialize yylineno*/
 
 
