@@ -78,7 +78,7 @@ f_body: block
     ;
 
 /* A command block is a list of commands enclosed by curly braces, followed by a semicolon*/
-block: '{' cmd_list '}' ';'
+block: '{' cmd_list '}'
     ;
 
 /* A list of commands is a list of commands separated by semicolons */
@@ -96,7 +96,9 @@ cmd: var_declaration
 /* A return statement */
     | TK_PR_RETURN expr ';'
 /* A control flow statement */
-    | control_flow
+    | control_flow ';'
+/* A block */
+    | block
     ;
 
 expr: expr_6
