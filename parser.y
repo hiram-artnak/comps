@@ -36,179 +36,126 @@ void yyerror (char const *mensagem);
 program: /* empty */
     | program var_declaration
     | program function
-    | expr
     ;
 
 /* A variable declaration is a type followed by a list of identifiers */
-/* The identifiers are separated by commas */
-var_declaration:
-    type id_list ';'
-    ;
-
-/* An identifier list is a list of identifiers separated by commas */
-id_list:
-    TK_IDENTIFICADOR
-    | id_list ',' TK_IDENTIFICADOR
+var_declaration: type id_list ';'
     ;
 
 /* A type is one of the primitive types */
-type:
-    TK_PR_INT
+type: TK_PR_INT
     | TK_PR_FLOAT
     | TK_PR_BOOL
     ;
 
-/* A function is a parameter list followed by TK_OC_GE, followed by the return type, followed by the '!' token, followed by a block */
-function:
-    '(' param_list ')' TK_OC_GE type '!' TK_IDENTIFICADOR block
+/* A list of identifiers is a comma-separated list of identifiers */
+id_list: TK_IDENTIFICADOR
+    | id_list ',' TK_IDENTIFICADOR
     ;
 
-/* A parameter list is a (possibly empty) list of parameters separated by commas */
-param_list:
-    /* empty */
-    | param
+/* A function is made up of a header and a body*/
+function: f_header f_body
+    ;
+
+/* A function header is a parameter list, the TK_OC_GE token, a type, the '!' token and an identifier */    
+f_header: '(' param_list ')' TK_OC_GE type '!' TK_IDENTIFICADOR
+/* the parameter list may be empty */
+    | '(' ')' TK_OC_GE type '!' TK_IDENTIFICADOR
+    ;
+
+/* A parameter list is a list of parameters separated by commas */
+param_list: param
     | param_list ',' param
     ;
 
-/* A parameter is a type followed by an identifier */
+/* A parameter is a type and an identifier */
 param: type TK_IDENTIFICADOR
     ;
 
-/* A block is a list of statements surrounded by curly braces */
-/* The list of statements may be empty */
-block: '{' statement_list '}' ';'
+/* A function body is a command block */
+f_body: block
     ;
 
-/* A statement list is a (possibly empty) list of statements */
-statement_list:
-    /* empty */
-    | statement
-    | statement_list statement
+/* A command block is a list of commands enclosed by curly braces, followed by a semicolon*/
+block: '{' cmd_list '}' ';'
     ;
 
-/* A statement is either a variable declaration, a block, a function call, attribution, return or a control statement */
-statement:
-    var_declaration
-    | block
-    | function_call
-    | attribution
-    | return_statement
-    | control_statement
+/* A list of commands is a list of commands separated by semicolons */
+cmd_list: cmd
+    | cmd_list cmd
     ;
 
-/* A function call is an identifier followed by a list of expressions surrounded by parentheses */
-function_call:
-    TK_IDENTIFICADOR '(' expr_list ')' ';'
+/* A command is one of the following */
+/* A variable declaration */
+cmd: var_declaration
+/* An assignment */
+    | TK_IDENTIFICADOR '=' expr
+/* A function call */
+    | TK_IDENTIFICADOR '(' expr_list ')'
+/* A return statement */
+    | TK_PR_RETURN expr
+/* A control flow statement */
+    | control_flow
     ;
 
-
-/* An attribution is an identifier followed by the '=' token followed by an expression */
-attribution:
-    TK_IDENTIFICADOR '=' expr ';'
+expr: expr_6
+    | expr TK_OC_OR expr_6
     ;
 
-
-/* A return statement is the TK_PR_RETURN token followed by an expression */
-return_statement:
-    TK_PR_RETURN expr ';'
+expr_6: expr_5
+    | expr_6 TK_OC_AND expr_5
     ;
 
-
-/* A control statement is an if statement or a while statement */
-control_statement:
-    if_statement
-    | while_statement
+expr_5: expr_4
+    | expr_5 TK_OC_EQ expr_4
+    | expr_5 TK_OC_NE expr_4
     ;
 
-/* An if statement is the TK_PR_IF token followed by an expression, followed by a block, followed by an optional else statement */
-if_statement: TK_PR_IF '(' expr ')' block else_statement
-            | TK_PR_IF '(' expr ')' block
-            ;
-
-/* An else statement is the TK_PR_ELSE token followed by a block */
-else_statement: TK_PR_ELSE block;
-
-/* A while statement is the TK_PR_WHILE token followed by an expression, followed by a block */
-while_statement: TK_PR_WHILE '(' expr ')' block
-                ;
-
-
-/* An expression list is a (possibly empty) list of expressions separated by commas */
-expr_list:
-    /* empty */
-    | expr
-    | expr_list ',' expr
+expr_4: expr_3
+    | expr_4 '<' expr_3
+    | expr_4 '>' expr_3
+    | expr_4 TK_OC_LE expr_3
+    | expr_4 TK_OC_GE expr_3
     ;
 
-
-/* An operand is an identifier, a literal or a function call */
-operand:
-    TK_IDENTIFICADOR
-    | literal 
-    | function_call
+expr_3: expr_2
+    | expr_3 '+' expr_2
+    | expr_3 '-' expr_2
     ;
 
-/* A literal is an integer, a float, false or true */
-literal:
-    TK_LIT_INT
+expr_2: expr_1
+    | expr_2 '*' expr_1
+    | expr_2 '/' expr_1
+    ;
+
+expr_1: expr_0
+    | '!' expr_0
+    | '-' expr_0
+    ;
+
+expr_0: '(' expr ')'
+    | operand
+    ;
+
+operand: TK_IDENTIFICADOR
+    | TK_LIT_INT
     | TK_LIT_FLOAT
     | TK_LIT_FALSE
     | TK_LIT_TRUE
     ;
 
-/* A parenthesis expression is an expression surrounded by parentheses */
-parenthesis_expr: operand 
-    | '(' expr ')'
+expr_list: expr
+    | expr_list ',' expr
     ;
 
-/* An unary expression is a unary operator followed by an expression */
-unary_expr: parenthesis_expr
-    | '-' expr
-    | '!' expr
+/* A control flow statement is one of the following */
+/* An if statement */
+control_flow: TK_PR_IF '(' expr ')' block
+    | TK_PR_IF '(' expr ')' block TK_PR_ELSE block
+/* A while statement */
+    | TK_PR_WHILE '(' expr ')' block
     ;
 
-/* a factor is a multiplication, division or modulo operation */
-factor: unary_expr
-    | factor '*' unary_expr {{printf("Mult!");}}
-    | factor '/' unary_expr {{printf("Div!");}}
-    | factor '%' unary_expr
-    ;
-
-/* a term is an addition or subtraction operation */
-term: factor
-    | term '+' factor {{printf("Sum!");}}
-    | term '-' factor {{printf("Sub!");}}
-    ;
-
-
-/* an ordering expression is less than, greater than, less than or equal to, greater than or equal to */
-ordering_expr: term
-    | ordering_expr '<' term
-    | ordering_expr '>' term
-    | ordering_expr TK_OC_LE term
-    | ordering_expr TK_OC_GE term
-    ;
-
-
-/* an equality expression is equal to or not equal to*/
-equality_expr: ordering_expr
-    | equality_expr TK_OC_EQ ordering_expr
-    | equality_expr TK_OC_NE ordering_expr
-    ;
-
-/* an and expression uses the AND token */
-and_expr: equality_expr
-    | and_expr TK_OC_AND equality_expr
-    ;
-
-/* an or expression uses the OR token */
-or_expr: and_expr
-    | or_expr TK_OC_OR and_expr
-    ;
-
-/* an expression is an or expression */
-expr: or_expr
-    ;
 %%
 
 void yyerror (char const *s) {
