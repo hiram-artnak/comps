@@ -28,6 +28,7 @@ void yyerror (char const *mensagem);
 %token TK_ERRO
 
 %define parse.error verbose
+%define parse.trace
 
 %%
 
@@ -89,11 +90,11 @@ cmd_list: cmd
 /* A variable declaration */
 cmd: var_declaration
 /* An assignment */
-    | TK_IDENTIFICADOR '=' expr
+    | TK_IDENTIFICADOR '=' expr ';'
 /* A function call */
-    | TK_IDENTIFICADOR '(' expr_list ')'
+    | TK_IDENTIFICADOR '(' expr_list ')' ';'
 /* A return statement */
-    | TK_PR_RETURN expr
+    | TK_PR_RETURN expr ';'
 /* A control flow statement */
     | control_flow
     ;
