@@ -4,21 +4,21 @@
  * Date: 2023, October
  */
 
-  /* Options */
+/* Options */
 
 
-  /* yywrap is useless and better handled by other IO functions. */
- // %option noyywrap
- // OK I WILL KEEP IT IN CAUSE I DONT KNOW WHAT YOUR MAIN FUNC IS DOING!!!
- // BUT LET IT BE KNOWN
- // I DO IT UNDER PROTEST
+/** yywrap is useless and better handled by other IO functions.
+/* %option noyywrap
+/* OK I WILL KEEP IT IN CAUSE I DONT KNOW WHAT YOUR MAIN FUNC IS DOING!!!
+/* BUT LET IT BE KNOWN
+/* I DO IT UNDER PROTEST **/
 
-  /* Automatically count lines (required by the specification) */
+/* Automatically count lines (required by the specification) */
 %option yylineno
 
 
 
-  /* C code */
+/* C code */
 %{
   /*Tokens are defined in tokens.h by the professor*/
   #include <stdio.h>
@@ -29,14 +29,13 @@
   int get_line_number();
 %}
 
-  /* Substitution rules */
+/* Substitution rules */
 DIG [0-9]
-LETTER [a-zA-Z]
 MIN_LETTER [a-z]
 SPECIAL [!*\/%+\\\-<>{}()=,;]
 SPACE " "
 
-  /* States */
+/* States */
 %x COMMENT
 
 %%
@@ -44,6 +43,7 @@ SPACE " "
   /* Comments */
   /* Multi-line comments*/
 "/*" { BEGIN(COMMENT); }
+<COMMENT>\n {} /* Necessary for the automatic line-count */
 <COMMENT>"*/" { BEGIN(INITIAL); }
 <COMMENT>. { /* ignore */ }
 
@@ -78,7 +78,7 @@ SPACE " "
 "|" { return TK_OC_OR; }
 
   /* Identifiers */
-({MIN_LETTER}|_)({LETTER}|{DIG}|"_")* { return TK_IDENTIFICADOR;}
+({MIN_LETTER}|_)({MIN_LETTER}|{DIG}|"_")* { return TK_IDENTIFICADOR;}
 
 {SPECIAL} { return yytext[0]; }
 

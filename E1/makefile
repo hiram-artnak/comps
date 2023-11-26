@@ -9,6 +9,7 @@ OBJ=main.o  lex.yy.o
 etapa1: $(OBJ)
 	$(CC) -o $@ $^ $(LIBS)
 
+
 lex.yy.c: scanner.l
 	flex scanner.l
 
@@ -16,4 +17,4 @@ lex.yy.c: scanner.l
 .PHONY: clean
 
 clean:
-	rm -f lex.yy.c *.o 
+	rm -f lex.yy.c *.o etapa1

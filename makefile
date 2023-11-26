@@ -13,11 +13,13 @@ etapa2: $(OBJ)
 parser.tab.c: parser.y 
 	bison -d parser.y
 
-lex.yy.c: scanner.l
+parser.tab.h: parser.tab.c
+
+lex.yy.c: scanner.l parser.tab.h
 	flex scanner.l
 
 
 .PHONY: clean
 
 clean:
-	rm -f lex.yy.c parser.tab.c *.o etapa2 
+	rm -f lex.yy.c parser.tab.c *.o etapa2  parser.tab.h
