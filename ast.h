@@ -12,6 +12,18 @@ typedef enum lexeme_type{
     LEXEME_TYPE_LITERAL,
 } lexeme_type;
 
+typedef enum ast_node_type{
+    AST_NODE_FUNCTION_LIST,
+    AST_NODE_FUNCTION,
+    AST_NODE_COMMAND_LIST,
+    AST_NODE_EXPRESSION_LIST,
+    AST_NODE_ATTRIBUTION,
+    AST_NODE_FUNCTION_CALL,
+    AST_NODE_RETURN,
+    AST_NODE_IF,
+    AST_NODE_WHILE,
+} ast_node_type;
+
 typedef struct _lexeme {
     char *value;
     lexeme_type type;
@@ -25,6 +37,7 @@ int lexeme_destroy(lexeme *l);
 
 typedef struct ast_node {
     lexeme *lexeme;
+    ast_node_type type;
     struct ast_node *parent;
     list *children; // list of ast_node
 } ast_node;
@@ -37,7 +50,7 @@ typedef struct ast {
 int ast_init(ast *a);
 int ast_destroy(ast *a);
 int ast_set_root(ast *a, ast_node *root);
-int ast_node_init(ast_node *n, lexeme *l);
+int ast_node_init(ast_node *n, ast_node_type type, lexeme *l);
 int ast_node_destroy(ast_node *n);
 int ast_node_add_child(ast_node *parent, ast_node *child);
 int ast_node_remove_child(ast_node *parent, ast_node *child);

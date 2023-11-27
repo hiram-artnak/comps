@@ -55,10 +55,11 @@ int ast_node_destroy(ast_node *n){
     return 0;
 }
 
-int ast_node_init(ast_node *n, lexeme *l){
+int ast_node_init(ast_node *n, ast_node_type type, lexeme *l){
     n->lexeme = forced_malloc(sizeof(lexeme));
     lexeme_init(n->lexeme, l->value, l->type, l->line);
     n->parent = NULL;
+    n->type = type;
     n->children = forced_malloc(sizeof(list));
     list_init(n->children, _ast_node_destroy);
     return 0;
