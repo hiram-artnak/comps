@@ -57,7 +57,8 @@ int list_add(list *l, void *data){
     
     node *n = malloc(sizeof(node));
     if(n == NULL) die("malloc failed");
-    node_init(n, data);
+
+    if (node_init(n, data) == 1) die("node_init failed");
 
     if(l->head == NULL){
         l->head = n;
@@ -119,6 +120,7 @@ int list_destroy(list *l){
     if(l->size != 0){
         die("Tried to destroy list, but nodes still exist");
     }
+    free(l);
     return 0;
 }
 
