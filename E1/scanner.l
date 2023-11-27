@@ -34,7 +34,7 @@ DIG [0-9]
 LETTER [a-zA-Z]
 MIN_LETTER [a-z]
 SPECIAL [!*\/%+\\\-<>{}()=,;]
-SPACE " "
+SPACE [ \t\r\f]
 
 /* States */
 %x COMMENT

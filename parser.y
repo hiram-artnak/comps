@@ -35,12 +35,12 @@ void yyerror (char const *mensagem);
 /* A program is a list of variable declarations and functions, in any order */
 /* The program may also be empty */
 program: /* empty */
-    | program var_declaration
+    | program var_declaration ';'
     | program function
     ;
 
 /* A variable declaration is a type followed by a list of identifiers */
-var_declaration: type id_list ';'
+var_declaration: type id_list
     ;
 
 /* A type is one of the primitive types */
@@ -79,24 +79,27 @@ f_body: block
 
 /* A command block is a list of commands enclosed by curly braces, followed by a semicolon*/
 block: '{' cmd_list '}'
+    /* A block may be empty */
+    |'{''}'
     ;
 
 /* A list of commands is a list of commands separated by semicolons */
-cmd_list: cmd
-    | cmd_list cmd
+cmd_list: cmd ';'
+    | cmd_list cmd ';'
     ;
 
 /* A command is one of the following */
 /* A variable declaration */
 cmd: var_declaration
 /* An assignment */
-    | TK_IDENTIFICADOR '=' expr ';'
+    | TK_IDENTIFICADOR '=' expr
 /* A function call */
-    | TK_IDENTIFICADOR '(' expr_list ')' ';'
+    | TK_IDENTIFICADOR '(' expr_list ')'
+    | TK_IDENTIFICADOR '(' ')'
 /* A return statement */
-    | TK_PR_RETURN expr ';'
+    | TK_PR_RETURN expr 
 /* A control flow statement */
-    | control_flow ';'
+    | control_flow 
 /* A block */
     | block
     ;
@@ -129,6 +132,7 @@ expr_3: expr_2
 expr_2: expr_1
     | expr_2 '*' expr_1
     | expr_2 '/' expr_1
+    | expr_2 '%' expr_1
     ;
 
 expr_1: expr_0
