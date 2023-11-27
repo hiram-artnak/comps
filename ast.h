@@ -45,5 +45,6 @@ void ast_node_print(ast_node *n);
 int ast_node_add_sibling(ast_node *n, ast_node *sibling);
 int ast_node_remove_sibling(ast_node *n, ast_node *sibling);
 void ast_print(ast *a);
+void exporta(void *p);
 
 #endif

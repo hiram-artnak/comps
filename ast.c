@@ -175,3 +175,9 @@ int ast_set_root(ast *a, ast_node *root){
     a->root = root;
     return 0;
 }
+
+void exporta(void *p){
+    ast *a = (ast *)p;
+    ast_print(a);
+    return;
+}
