@@ -20,8 +20,9 @@ typedef struct lexeme {
 
 
 lexeme *lexeme_new(lexeme_type type, char *value, int line);
-lexeme *lexeme_new_identifier(char *value, int line);
-lexeme *lexeme_new_literal(char *value, int line);
+#define lexeme_identifier(value, line) (lexeme_new(LEXEME_IDENTIFIER, value, line))
+#define lexeme_literal(value, line) (lexeme_new(LEXEME_LITERAL, value, line))
+
 void lexeme_free(lexeme *l);
 char* lexeme_to_string(lexeme *l);
 void lexeme_print(lexeme *l);

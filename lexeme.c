@@ -13,14 +13,6 @@ lexeme *lexeme_new(lexeme_type type, char *value, int line){
     return l;
 }
 
-lexeme *lexeme_new_identifier(char *value, int line){
-    return lexeme_new(LEXEME_IDENTIFIER, value, line);
-}
-lexeme *lexeme_new_literal(char *value, int line){
-    return lexeme_new(LEXEME_LITERAL, value, line);
-
-}
-
 void lexeme_free(lexeme *l){
     free(l->value);
     free(l);
