@@ -32,13 +32,6 @@ int node_destroy(node *n){
     return 0;
 }
 
-/*** list functions ***/
-void die(char *msg){
-    /* For unrecoverable errors */
-    perror(msg);
-    exit(1);
-}
-
 void _simple_free(void *data){
     /* Useful for primitives */
     free(data);

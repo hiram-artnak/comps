@@ -36,13 +36,14 @@ typedef struct ast {
 
 int ast_init(ast *a);
 int ast_destroy(ast *a);
+int ast_set_root(ast *a, ast_node *root);
 int ast_node_init(ast_node *n, lexeme *l);
 int ast_node_destroy(ast_node *n);
 int ast_node_add_child(ast_node *parent, ast_node *child);
 int ast_node_remove_child(ast_node *parent, ast_node *child);
-int ast_node_print(ast_node *n);
+void ast_node_print(ast_node *n);
 int ast_node_add_sibling(ast_node *n, ast_node *sibling);
 int ast_node_remove_sibling(ast_node *n, ast_node *sibling);
-int ast_print(ast *a);
+void ast_print(ast *a);
 
 #endif

@@ -117,7 +117,7 @@ int ast_node_remove_sibling(ast_node *n, ast_node *sibling){
     return ast_node_remove_child(n->parent, sibling);
 }
 
-void print_ast_node(ast_node *n){
+void ast_node_print(ast_node *n){
     printf("%p [label=\"%s\"];", n, n->lexeme->value);
     if(n->children->size == 0){
         return;
@@ -131,15 +131,47 @@ void print_ast_node(ast_node *n){
 }
 
 // Depth first print of the tree
-int _ast_node_print(ast_node *n){
+void ast_print(ast *ast){
+    if(ast == NULL){
+        return 1;
+    }
+    ast_node *n = ast->root;
     if(n == NULL){
         return 1;
     }
     printf("%s\n", n->lexeme->value);
     node *curr = n->children->head;
     while(curr != NULL){
-        _ast_node_print((ast_node *)curr->data);
+        ast_node_print((ast_node *)curr->data);
         curr = curr->next;
     }
+    return 0;
+}
+
+/*** ast functions ***/
+int ast_init(ast *a){
+    a->root = NULL;
+    return 0;
+}
+
+
+
+int ast_destroy(ast *a){
+    if(a->root == NULL){
+        // Already destroyed
+        return 1;
+    }
+    ast_node_destroy(a->root);
+    free(a->root);
+    a->root = NULL;
+    return 0;
+}
+
+int ast_set_root(ast *a, ast_node *root){
+    if(a->root != NULL){
+        // Already has a root
+        return 1;
+    }
+    a->root = root;
     return 0;
 }
