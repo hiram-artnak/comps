@@ -13,10 +13,9 @@ typedef enum lexeme_type{
 } lexeme_type;
 
 typedef enum ast_node_type{
-    AST_NODE_FUNCTION_LIST,
     AST_NODE_FUNCTION,
-    AST_NODE_COMMAND_LIST,
-    AST_NODE_EXPRESSION_LIST,
+    AST_NODE_COMMAND,
+    AST_NODE_EXPRESSION,
     AST_NODE_ATTRIBUTION,
     AST_NODE_FUNCTION_CALL,
     AST_NODE_RETURN,
