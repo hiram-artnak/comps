@@ -15,3 +15,12 @@ void *forced_malloc(unsigned int size){
     }
     return ptr;
 }
+
+void *forced_realloc(void *ptr, unsigned int size){
+    /* For realloc errors */
+    ptr = realloc(ptr, size);
+    if(ptr == NULL){
+        die("realloc failed");
+    }
+    return ptr;
+}
