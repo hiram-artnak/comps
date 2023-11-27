@@ -25,9 +25,9 @@ typedef struct ast_node{
 } ast_node;
 
 /**  **/
-ast_node *ast_node_create(ast_node_type type, lexeme *lex);
+ast_node *_ast_node_create(ast_node_type type, lexeme *lex);
 
-#define ast_node_create(type) (ast_node_create(type, NULL))
+#define ast_node_create(type) (_ast_node_create(type, NULL))
 #define ast_node_function() (ast_node_create(AST_NODE_FUNCTION))
 #define ast_node_command() (ast_node_create(AST_NODE_COMMAND))
 #define ast_node_expression() (ast_node_create(AST_NODE_EXPRESSION))
@@ -36,8 +36,8 @@ ast_node *ast_node_create(ast_node_type type, lexeme *lex);
 #define ast_node_return() (ast_node_create(AST_NODE_RETURN))
 #define ast_node_if() (ast_node_create(AST_NODE_IF))
 #define ast_node_while() (ast_node_create(AST_NODE_WHILE))
-#define ast_node_literal(value, line_n) (ast_node_create(AST_NODE_LITERAL, lexeme_literal(value, line_n)))
-#define ast_node_identifier(value, line_n) (ast_node_create(AST_NODE_IDENTIFIER, lexeme_identifier(value, line_n)))
+#define ast_node_literal(value, line_n) (_ast_node_create(AST_NODE_LITERAL, lexeme_literal(value, line_n)))
+#define ast_node_identifier(value, line_n) (_ast_node_create(AST_NODE_IDENTIFIER, lexeme_identifier(value, line_n)))
 
 /** Dispatcher function **/
 void ast_node_print(ast_node *node);
