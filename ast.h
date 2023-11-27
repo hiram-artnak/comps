@@ -3,6 +3,7 @@
 
 #include "list.h"
 #include "lexeme.h"
+#include "utils.h"
 
 typedef enum ast_node_type{
     AST_NODE_FUNCTION, 
@@ -14,7 +15,7 @@ typedef enum ast_node_type{
     AST_NODE_IF,
     AST_NODE_WHILE,
     AST_NODE_LITERAL,
-    AST_NODE_IDENTIFIER,
+    AST_NODE_IDENTIFIER
 } ast_node_type;
 
 
@@ -27,17 +28,17 @@ typedef struct ast_node{
 /**  **/
 ast_node *_ast_node_create(ast_node_type type, lexeme *lex);
 
-#define ast_node_create(type) (_ast_node_create(type, NULL))
-#define ast_node_function() (ast_node_create(AST_NODE_FUNCTION))
-#define ast_node_command() (ast_node_create(AST_NODE_COMMAND))
-#define ast_node_expression() (ast_node_create(AST_NODE_EXPRESSION))
-#define ast_node_attribution() (ast_node_create(AST_NODE_ATTRIBUTION))
-#define ast_node_call() (ast_node_create(AST_NODE_CALL))
-#define ast_node_return() (ast_node_create(AST_NODE_RETURN))
-#define ast_node_if() (ast_node_create(AST_NODE_IF))
-#define ast_node_while() (ast_node_create(AST_NODE_WHILE))
-#define ast_node_literal(value, line_n) (_ast_node_create(AST_NODE_LITERAL, lexeme_literal(value, line_n)))
-#define ast_node_identifier(value, line_n) (_ast_node_create(AST_NODE_IDENTIFIER, lexeme_identifier(value, line_n)))
+#define ast_node_function(lex) (lex_get_type(lex) == LEX_IDENTIFIER ?  _ast_node_create(AST_NODE_FUNCTION, lex) : die("Invalid lexeme type for function node"))
+#define ast_node_command(lex) (_ast_node_create(AST_NODE_COMMAND, lex))
+#define ast_node_expression(lex) (_ast_node_create(AST_NODE_EXPRESSION, lex))
+#define ast_node_attribution(lex) (_ast_node_create(AST_NODE_ATTRIBUTION, NULL))
+#define ast_node_call(lex) (_ast_node_create(AST_NODE_CALL, lex))
+#define ast_node_return(lex) (_ast_node_create(AST_NODE_RETURN, lex))
+#define ast_node_if(lex) (_ast_node_create(AST_NODE_IF, lex))
+#define ast_node_while(lex) (_ast_node_create(AST_NODE_WHILE, lex))
+#define ast_node_literal(lex) (_ast_node_create(AST_NODE_LITERAL, lex))
+#define ast_node_identifier(lex) (_ast_node_create(AST_NODE_IDENTIFIER, lex))
+
 
 /** Dispatcher function **/
 void ast_node_print(ast_node *node);
