@@ -68,7 +68,7 @@ void yyerror (char const *mensagem);
 
 /* A program is a list of variable declarations and functions, in any order */
 /* The program may also be empty */
-program: /* empty */
+program: /* empty */ {arvore = NULL;}
     | program var_declaration ';' 
     | program function {ast_node_add_child($1, $2); $$ = $1; arvore = (void*)$1;}
     ;

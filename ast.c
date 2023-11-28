@@ -39,3 +39,20 @@ void ast_node_add_child(ast_node *parent, ast_node *child){
 void ast_node_print(ast_node *node){
     printf("%p [label=\"%s\"]", node, node->label);
 }
+
+void exporta(void *arvore){
+    if(arvore == NULL) return;
+    // Depth first search
+    ast_node *tree_node = (ast_node *) arvore;
+    ast_node_print(tree_node);
+    node *child = tree_node->children->head;
+    while(child != NULL){
+        printf("%p %p\n", tree_node, child->data);
+        child = child->next;
+    }
+    child = tree_node->children->head;
+    while(child != NULL){
+        exporta(child->data);
+        child = child->next;
+    }
+}
