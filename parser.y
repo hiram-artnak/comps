@@ -1,14 +1,13 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "lexeme.h"
 extern int get_line_number();
 int yylex(void);
 void yyerror (char const *mensagem);
 %}
-
+%code requires { #include "lexeme.h" }
 %union{
-    lexeme *lex;
+    lexeme *lexeme;
 }
 
 %token TK_PR_INT
