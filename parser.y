@@ -66,7 +66,7 @@ void yyerror (char const *mensagem);
 /* The program may also be empty */
 program: /* empty */
     | program var_declaration ';' 
-    | program function {ast}
+    | program function {add_child($1, $2); $$ = $1; arvore = (void*)$1;}
     ;
 
 /* A variable declaration is a type followed by a list of identifiers */
@@ -110,7 +110,7 @@ f_body: block
 /* A command block is a list of commands enclosed by curly braces, followed by a semicolon*/
 block: '{' cmd_list '}' { $$ = $2;}
     /* A block may be empty */
-    |'{''}'
+    |'{''}' { $$ = NULL;}
     ;
 
 /* A list of commands is a list of commands separated by semicolons */
@@ -189,15 +189,15 @@ operand: TK_IDENTIFICADOR {$$ = ast_node_new($1->value, $1);}
     ;
 
 expr_list: expr
-    | expr_list ',' expr
+    | expr_list ',' expr {add_child($1, $3); $$ = $1;}
     ;
 
 /* A control flow statement is one of the following */
 /* An if statement */
-control_flow: TK_PR_IF '(' expr ')' block
-    | TK_PR_IF '(' expr ')' block TK_PR_ELSE block
+control_flow: TK_PR_IF '(' expr ')' block { ast_node* n = _ast_node("if"); add_child(n, $3); if($5 != NULL) add_child(n,$5); $$ = n;}
+    | TK_PR_IF '(' expr ')' block TK_PR_ELSE block { ast_node* n = _ast_node("if"); add_child(n, $3); if($5!=NULL) add_child(n,$5); add_child(n,$7); $$ = n;}
 /* A while statement */
-    | TK_PR_WHILE '(' expr ')' block
+    | TK_PR_WHILE '(' expr ')' block { ast_node* n = _ast_node("while"); add_child(n, $3); if($5!=NULL) add_child(n,$5); $$ = n;}
     ;
 
 %%
