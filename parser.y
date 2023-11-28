@@ -1,11 +1,15 @@
 %{
-#include "parser.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "lexeme.h"
 extern int get_line_number();
 int yylex(void);
 void yyerror (char const *mensagem);
 %}
+
+%union{
+    lexeme *lex;
+}
 
 %token TK_PR_INT
 %token TK_PR_FLOAT
@@ -29,10 +33,6 @@ void yyerror (char const *mensagem);
 
 %define parse.error verbose
 %define parse.trace
-
-%union {
-    lexeme* lexeme;
-}
 
 %%
 
