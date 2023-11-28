@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void node_destroy(void *data){
+void ast_node_destroy(void *data){
     ast_node *node = (ast_node *) data;
     ast_node_free(node);
 }
@@ -18,7 +18,7 @@ ast_node *ast_node_new(char* label, lexeme *value){
     strcpy(node->label, label);
     node->value = value;
     node->children = forced_malloc(sizeof(list));
-    list_init(node->children, node_destroy);
+    list_init(node->children, ast_node_destroy);
     return node;
 }
 
@@ -27,7 +27,7 @@ void ast_node_free(ast_node *node){
     if (node->value != NULL){
         lexeme_free(node->value);
     }
-    list_free(node->children);
+    list_destroy(node->children);
     free(node);
 }
 
