@@ -134,7 +134,7 @@ cmd: var_declaration
                                 ast_node* n = _ast_node(value); 
                                 add_child(n, $1); $$ = n;}
 /* A return statement */
-    | TK_PR_RETURN expr  { ast_node* n = _ast_node($1->value); add_child(n, $2); $$ = n;}
+    | TK_PR_RETURN expr  { ast_node* n = _ast_node("return"); add_child(n, $2); $$ = n;}
 /* A control flow statement */
     | control_flow 
 /* A block */
