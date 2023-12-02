@@ -19,7 +19,8 @@ llist *llist_create(llist_free_fn free_fn);
 // Free a linked list
 void llist_free(llist *list);
 
-// Append a node to the end of the list
+// Append a node to the end of the list.
+// It is the caller's responsibility to allocate the data in the heap.
 void llist_append(llist *list, void *data);
 
 // Get the data based on index
