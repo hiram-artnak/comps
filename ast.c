@@ -7,6 +7,7 @@
 
 typedef struct ast_node {
     lexeme *lex;
+    ast_node_type type;
     llist *children;
 } ast_node;
 
@@ -15,7 +16,7 @@ void _ast_node_destroy(void *data){
     ast_node_free(node);
 }
 
-ast_node *ast_node_create(lexeme *lex){
+ast_node *ast_node_create(ast_node_type type, lexeme *lex){
     // Allocate Memory //
     ast_node *node = malloc(sizeof(ast_node));
     if(node == NULL) {
@@ -24,6 +25,7 @@ ast_node *ast_node_create(lexeme *lex){
     }
     // Set node attributes //
     node->lex = lex;
+    node->type = type;
     node->children = llist_create(_ast_node_destroy);
     return node;
 }
@@ -53,8 +55,10 @@ void ast_node_remove_child(ast_node *parent, void *key, ast_match_fn match){
 
 void ast_node_print(ast_node *node){
     printf("(");
-    lexeme_print(node->lex);
-    printf(" ");
+    if(node->lex != NULL){
+        lexeme_print(node->lex);
+        printf(" ");
+    }
     llist_print(node->children, ast_node_print);
     printf(")");
 }

@@ -3,11 +3,27 @@
 
 #include "lexeme.h"
 
-typedef struct ast_node ast_node;
+typedef enum ast_node_type{
+    AST_NODE_TYPE_PROGRAM,
+    AST_NODE_TYPE_FUNCTION,
+    AST_NODE_TYPE_STATEMENT,
+    AST_NODE_TYPE_EXPRESSION,
+    AST_NODE_TYPE_IDENTIFIER,
+    AST_NODE_TYPE_LITERAL,
+    AST_NODE_TYPE_OPERATOR,
+    AST_NODE_TYPE_DECLARATION,
+    AST_NODE_TYPE_ASSIGNMENT,
+    AST_NODE_TYPE_FUNCTION_CALL,
+    AST_NODE_TYPE_RETURN,
+    AST_NODE_TYPE_IF,
+    AST_NODE_TYPE_WHILE,
+    AST_NODE_TYPE_UNKNOWN
+} ast_node_type;
 
+typedef struct ast_node ast_node;
 typedef char (*ast_match_fn)(void *key, void *data);
 
-ast_node *ast_node_create(lexeme *lex);
+ast_node *ast_node_create(ast_node_type type, lexeme *lex);
 void ast_node_free(ast_node *node);
 void ast_node_add_child(ast_node *parent, ast_node *child);
 void ast_node_remove_child(ast_node *parent, void *key, ast_match_fn match);
