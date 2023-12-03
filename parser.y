@@ -46,6 +46,13 @@ void yyerror (char const *mensagem);
 %type<node> expr_5
 %type<node> expr_6
 %type<node> expr
+%type<node> cmd
+%type<node> cmd_list
+%type<node> var_declaration
+%type<node> id_list
+%type<node> block
+%type<node> expr_list
+%type<node> control_flow
 
 %define parse.error verbose
 %define parse.trace
@@ -60,7 +67,7 @@ program: /* empty */
     ;
 
 /* A variable declaration is a type followed by a list of identifiers */
-var_declaration: type id_list
+var_declaration: type id_list {$$ = $2;}
     ;
 
 /* A type is one of the primitive types */
@@ -70,8 +77,8 @@ type: TK_PR_INT
     ;
 
 /* A list of identifiers is a comma-separated list of identifiers */
-id_list: TK_IDENTIFICADOR
-    | id_list ',' TK_IDENTIFICADOR
+id_list: TK_IDENTIFICADOR { $$ = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1); }
+    | id_list ',' TK_IDENTIFICADOR {ast_node_add_child($1, ast_node_create(AST_NODE_TYPE_IDENTIFIER, $3)); $$ = $1;}
     ;
 
 /* A function is made up of a header and a body*/
@@ -98,26 +105,26 @@ f_body: block
     ;
 
 /* A command block is a list of commands enclosed by curly braces, followed by a semicolon*/
-block: '{' cmd_list '}'
+block: '{' cmd_list '}' { $$ = $2;}
     /* A block may be empty */
-    |'{''}'
+    |'{''}' { $$ = ast_node_create(AST_NODE_TYPE_EMPTY_BLOCK, NULL);}
     ;
 
 /* A list of commands is a list of commands separated by semicolons */
 cmd_list: cmd ';'
-    | cmd_list cmd ';'
+    | cmd_list cmd ';' {ast_node_add_child($1, $2); $$ = $1;}
     ;
 
 /* A command is one of the following */
 /* A variable declaration */
 cmd: var_declaration
 /* An assignment */
-    | TK_IDENTIFICADOR '=' expr
+    | TK_IDENTIFICADOR '=' expr {ast_node *node = ast_node_create(AST_NODE_TYPE_ATTRIBUTION, NULL); ast_node_add_child(node, ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1)); ast_node_add_child(node, $3); $$ = node;}
 /* A function call */
-    | TK_IDENTIFICADOR '(' expr_list ')'
-    | TK_IDENTIFICADOR '(' ')'
+    | TK_IDENTIFICADOR '(' expr_list ')' {ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1); ast_node_add_child(node, $3); $$ = node;} 
+    | TK_IDENTIFICADOR '(' ')' {ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1); $$ = node;}
 /* A return statement */
-    | TK_PR_RETURN expr 
+    | TK_PR_RETURN expr {ast_node *node = ast_node_create(AST_NODE_TYPE_RETURN, NULL); ast_node_add_child(node, $2); $$ = node;}
 /* A control flow statement */
     | control_flow 
 /* A block */
@@ -171,16 +178,16 @@ operand: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENT
     | TK_LIT_TRUE {ast_node *node = ast_node_create(AST_NODE_TYPE_LIT_TRUE, $1); $$ = node;}
     ;
 
-expr_list: expr
-    | expr_list ',' expr
+expr_list: expr { $$ = $1;}
+    | expr_list ',' expr {ast_node_add_child($1, $3); $$ = $1;}
     ;
 
 /* A control flow statement is one of the following */
 /* An if statement */
-control_flow: TK_PR_IF '(' expr ')' block
-    | TK_PR_IF '(' expr ')' block TK_PR_ELSE block
+control_flow: TK_PR_IF '(' expr ')' block {ast_node *node = ast_node_create(AST_NODE_TYPE_IF, NULL); ast_node_add_child(node, $3); ast_node_add_child(node, $5); $$ = node;}
+    | TK_PR_IF '(' expr ')' block TK_PR_ELSE block {ast_node *node = ast_node_create(AST_NODE_TYPE_IF, NULL); ast_node_add_child(node, $3); ast_node_add_child(node, $5); ast_node_add_child(node, $7); $$ = node;}
 /* A while statement */
-    | TK_PR_WHILE '(' expr ')' block
+    | TK_PR_WHILE '(' expr ')' block {ast_node *node = ast_node_create(AST_NODE_TYPE_WHILE, NULL); ast_node_add_child(node, $3); ast_node_add_child(node, $5); $$ = node;}
     ;
 
 %%
