@@ -38,6 +38,14 @@ void yyerror (char const *mensagem);
 %token<lex> TK_ERRO
 
 %type<node> operand
+%type<node> expr_0
+%type<node> expr_1
+%type<node> expr_2
+%type<node> expr_3
+%type<node> expr_4
+%type<node> expr_5
+%type<node> expr_6
+%type<node> expr
 
 %define parse.error verbose
 %define parse.trace
@@ -117,42 +125,42 @@ cmd: var_declaration
     ;
 
 expr: expr_6
-    | expr TK_OC_OR expr_6
+    | expr TK_OC_OR expr_6 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_OR, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
     ;
 
 expr_6: expr_5
-    | expr_6 TK_OC_AND expr_5
+    | expr_6 TK_OC_AND expr_5 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_AND, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
     ;
 
 expr_5: expr_4
-    | expr_5 TK_OC_EQ expr_4
-    | expr_5 TK_OC_NE expr_4
+    | expr_5 TK_OC_EQ expr_4 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_EQ, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
+    | expr_5 TK_OC_NE expr_4 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_NE, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
     ;
 
 expr_4: expr_3
-    | expr_4 '<' expr_3
-    | expr_4 '>' expr_3
-    | expr_4 TK_OC_LE expr_3
-    | expr_4 TK_OC_GE expr_3
+    | expr_4 '<' expr_3 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_LT, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
+    | expr_4 '>' expr_3 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_GT, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
+    | expr_4 TK_OC_LE expr_3 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_LE, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
+    | expr_4 TK_OC_GE expr_3 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_GE, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
     ;
 
 expr_3: expr_2
-    | expr_3 '+' expr_2
-    | expr_3 '-' expr_2
+    | expr_3 '+' expr_2 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_ADD, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
+    | expr_3 '-' expr_2 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_SUB, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
     ;
 
 expr_2: expr_1
-    | expr_2 '*' expr_1
-    | expr_2 '/' expr_1
-    | expr_2 '%' expr_1
+    | expr_2 '*' expr_1 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_MUL, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
+    | expr_2 '/' expr_1 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_DIV, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
+    | expr_2 '%' expr_1 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_MOD, NULL); ast_node_add_child(node, $1); ast_node_add_child(node, $3); $$ = node;}
     ;
 
 expr_1: expr_0
-    | '!' expr_0
-    | '-' expr_0
+    | '!' expr_0 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_NOT, NULL); ast_node_add_child(node, $2); $$ = node;}
+    | '-' expr_0 {ast_node *node = ast_node_create(AST_NODE_TYPE_OP_NEG, NULL); ast_node_add_child(node, $2); $$ = node;}
     ;
 
-expr_0: '(' expr ')'
+expr_0: '(' expr ')' {$$ = $2;}
     | operand
     ;
 

@@ -59,12 +59,22 @@ void _ast_node_print(void *data){
     ast_node_print(node);
 }
 
-void ast_node_print(ast_node *node){
-    printf("(");
+void _ast_node_print_depth(ast_node *node, int depth){
+    int i;
+    for(i = 0; i < depth; i++){
+        printf("   ");
+    }
     if(node->lex != NULL){
         lexeme_print(node->lex);
         printf(" ");
     }
-    llist_print(node->children, _ast_node_print);
-    printf(")");
+    printf("\n");
+    for(int j = 0; j < llist_length(node->children); j++){
+        _ast_node_print_depth(llist_get(node->children, j), depth + 1);
+    }
+}
+
+void ast_node_print(ast_node *node){
+    _ast_node_print_depth(node, 0);
+    printf("\n");
 }
