@@ -8,7 +8,7 @@
 // Type definitions
 typedef struct llist llist;
 typedef void (*llist_free_fn)(void *data);
-typedef int (*llist_compare_fn)(void *key, void *data);
+typedef char (*llist_match_fn)(void *key, void *data);
 typedef void (*llist_print_fn)(void *data);
 
 // Function prototypes
@@ -27,7 +27,7 @@ void llist_append(llist *list, void *data);
 void *llist_get(llist *list, int index);
 
 // Remove a node from the list
-void llist_remove(llist *list, void *key, llist_compare_fn compare_fn);
+void llist_remove(llist *list, void *key, llist_match_fn match_fn);
 
 // Print the list
 void llist_print(llist *list, llist_print_fn print_fn);

@@ -145,16 +145,20 @@ void *llist_get(llist *list, int index){
 }
 
 // Remove a node from the list
-void llist_remove(llist *list, void *key, llist_compare_fn compare_fn){
+void llist_remove(llist *list, void *key, llist_match_fn match_fn){
     // Validate inputs //
     if(list == NULL) {
         fprintf(stderr, "Error: tried to remove from list, but list is NULL\n");
         exit(1);
     }
+    if(match_fn == NULL) {
+        fprintf(stderr, "Error: tried to remove from list, but match function is NULL\n");
+        exit(1);
+    }
     // Loop through the list until we find the key //
     llist_node *node = list->head;
     while(node != NULL) {
-        if(compare_fn(key, node->data) == 0) {
+        if(match_fn(key, node->data) == 0) {
             // If the node is the head
             if(node == list->head) {
                 list->head = node->next;
