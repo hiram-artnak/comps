@@ -30,12 +30,14 @@ void yyerror (char const *mensagem);
 %token<lex> TK_OC_NE
 %token<lex> TK_OC_AND
 %token<lex> TK_OC_OR
-%token<node> TK_IDENTIFICADOR
-%token<node> TK_LIT_INT
-%token<node> TK_LIT_FLOAT
-%token<node> TK_LIT_FALSE
-%token<node> TK_LIT_TRUE
+%token<lex> TK_IDENTIFICADOR
+%token<lex> TK_LIT_INT
+%token<lex> TK_LIT_FLOAT
+%token<lex> TK_LIT_FALSE
+%token<lex> TK_LIT_TRUE
 %token<lex> TK_ERRO
+
+%type<node> operand
 
 %define parse.error verbose
 %define parse.trace
@@ -154,11 +156,11 @@ expr_0: '(' expr ')'
     | operand
     ;
 
-operand: TK_IDENTIFICADOR
-    | TK_LIT_INT
-    | TK_LIT_FLOAT
-    | TK_LIT_FALSE
-    | TK_LIT_TRUE
+operand: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1); $$ = node; }
+    | TK_LIT_INT {ast_node *node = ast_node_create(AST_NODE_TYPE_LIT_INT, $1); $$ = node; }
+    | TK_LIT_FLOAT {ast_node *node = ast_node_create(AST_NODE_TYPE_LIT_FLOAT, $1); $$ = node;}
+    | TK_LIT_FALSE {ast_node *node = ast_node_create(AST_NODE_TYPE_LIT_FALSE, $1); $$ = node;}
+    | TK_LIT_TRUE {ast_node *node = ast_node_create(AST_NODE_TYPE_LIT_TRUE, $1); $$ = node;}
     ;
 
 expr_list: expr
