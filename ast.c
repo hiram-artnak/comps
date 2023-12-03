@@ -53,12 +53,18 @@ void ast_node_remove_child(ast_node *parent, void *key, ast_match_fn match){
     llist_remove(parent->children, key, match);
 }
 
+
+void _ast_node_print(void *data){
+    ast_node *node = (ast_node *) data;
+    ast_node_print(node);
+}
+
 void ast_node_print(ast_node *node){
     printf("(");
     if(node->lex != NULL){
         lexeme_print(node->lex);
         printf(" ");
     }
-    llist_print(node->children, ast_node_print);
+    llist_print(node->children, _ast_node_print);
     printf(")");
 }

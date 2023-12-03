@@ -1,6 +1,6 @@
 #include "llist.h"
 #include <stdio.h>
-
+#include <stdlib.h>
 
 typedef struct llist_node {
     void *data;

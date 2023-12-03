@@ -63,10 +63,10 @@ SPACE [ \t\r\f]
 "return" { return TK_PR_RETURN;}
 
   /* Literals */
-"false" {yylval = lexeme_create(LITERAL, "false", get_line_no()); return TK_LIT_FALSE;}
-"true" {yylval = lexeme_create(LITERAL, "true", get_line_no()); return TK_LIT_TRUE;}
-{DIG}*\.{DIG}+ {yylval = lexeme_create(LITERAL, yytext, get_line_no()); return TK_LIT_FLOAT;}
-{DIG}+ {yylval = lexeme_create(LITERAL, yytext, get_line_no()); return TK_LIT_INT;}
+"false" {yylval.lex = lexeme_create(LITERAL, "false", yylineno); return TK_LIT_FALSE;}
+"true" {yylval.lex = lexeme_create(LITERAL, "true", yylineno); return TK_LIT_TRUE;}
+{DIG}*\.{DIG}+ {yylval.lex = lexeme_create(LITERAL, yytext, yylineno); return TK_LIT_FLOAT;}
+{DIG}+ {yylval.lex = lexeme_create(LITERAL, yytext, yylineno); return TK_LIT_INT;}
 
 
   /* Composite Operators */
@@ -78,7 +78,7 @@ SPACE [ \t\r\f]
 "|" { return TK_OC_OR; }
 
   /* Identifiers */
-({MIN_LETTER}|_)({MIN_LETTER}|{DIG}|"_")* {yylval = lexeme_create(IDENTIFIER, yytext, get_line_no());  return TK_IDENTIFICADOR;}
+({MIN_LETTER}|_)({MIN_LETTER}|{DIG}|"_")* {yylval.lex = lexeme_create(IDENTIFIER, yytext, yylineno);  return TK_IDENTIFICADOR;}
 
 {SPECIAL} { return yytext[0]; }
 
