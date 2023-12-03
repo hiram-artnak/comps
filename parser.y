@@ -53,7 +53,10 @@ void yyerror (char const *mensagem);
 %type<node> block
 %type<node> expr_list
 %type<node> control_flow
-
+%type<node> f_header
+%type<node> f_body
+%type<node> function
+%type<node> program
 %define parse.error verbose
 %define parse.trace
 
@@ -61,9 +64,9 @@ void yyerror (char const *mensagem);
 
 /* A program is a list of variable declarations and functions, in any order */
 /* The program may also be empty */
-program: /* empty */
-    | program var_declaration ';'
-    | program function
+program: /* empty */ { $$ = ast_node_create(AST_NODE_TYPE_PROGRAM, NULL);}
+    | program var_declaration ';' 
+    | program function {ast_node_add_child($1, $2); $$ = $1;}
     ;
 
 /* A variable declaration is a type followed by a list of identifiers */
@@ -82,13 +85,13 @@ id_list: TK_IDENTIFICADOR { $$ = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1); 
     ;
 
 /* A function is made up of a header and a body*/
-function: f_header f_body
+function: f_header f_body {ast_node_add_child($1, $2); $$ = $1;}
     ;
 
 /* A function header is a parameter list, the TK_OC_GE token, a type, the '!' token and an identifier */    
-f_header: '(' param_list ')' TK_OC_GE type '!' TK_IDENTIFICADOR
+f_header: '(' param_list ')' TK_OC_GE type '!' TK_IDENTIFICADOR { $$ = ast_node_create(AST_NODE_TYPE_FUNCTION, $7); }
 /* the parameter list may be empty */
-    | '(' ')' TK_OC_GE type '!' TK_IDENTIFICADOR
+    | '(' ')' TK_OC_GE type '!' TK_IDENTIFICADOR { $$ = ast_node_create(AST_NODE_TYPE_FUNCTION, $6);}
     ;
 
 /* A parameter list is a list of parameters separated by commas */
