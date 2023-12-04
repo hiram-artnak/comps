@@ -11,11 +11,13 @@ extern void* arvore;
 %code requires{
     #include "ast.h"
     #include "lexeme.h"
+    #include "llist.h"
 }
 
 %union {
     ast_node *node;
     lexeme *lex;
+    llist *list;
 }
 
 %token<lex> TK_PR_INT
@@ -61,7 +63,7 @@ extern void* arvore;
 %type<node> null_program
 %type<node> actual_program_1
 %type<node> actual_program_2
-%type<node> function_list
+%type<list> function_list
 %define parse.error verbose
 %define parse.trace
 
@@ -81,13 +83,13 @@ actual_program_1: var_declaration
     | actual_program_2 var_declaration {ast_node_add_child($1, $2); $$ = $1;}
     ;
 
-actual_program_2: function_list {arvore = $1; $$ = $1;}
-    | actual_program_1 function_list {ast_node_add_child($1, $2); $$ = $1; arvore = $2;}
+actual_program_2: function_list {ast_node *func = (ast_node *)llist_get($1, 0); arvore = func; $$ = func; llist_free_wo_destroy($1);}
+    | actual_program_1 function_list {ast_node *func = (ast_node *)llist_get($2, 0); ast_node_add_child($1, func); $$ = $1; arvore = func; llist_free_wo_destroy($2);}
     ;
 
 
-function_list: function
-    | function_list function {ast_node_add_child($1, $2); $$ = $1;}
+function_list: function { llist* list = llist_create(NULL); llist_append(list, (void*) $1); $$ = list;}
+    | function_list function {ast_node *last = (ast_node *)llist_get_tail($1); ast_node_add_child(last, $2); llist_append($1, (void *) $2); $$ = $1;}
     ;
 
 /* A variable declaration is a type followed by a list of identifiers */

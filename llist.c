@@ -13,6 +13,7 @@ llist_node *llist_node_create(void *data);
 
 // Free a node
 void llist_node_free(llist_node *node, llist_free_fn free_fn);
+void llist_node_free_wo_destroy(llist_node *node);
 
 llist_node *llist_node_create(void *data) {
     // Allocate Memory //
@@ -46,6 +47,19 @@ void llist_node_free(llist_node *node, llist_free_fn free_fn) {
         free(node->data);
     }
 
+    free(node);
+}
+
+void llist_node_free_wo_destroy(llist_node *node){
+    // Validate inputs //
+    if(node == NULL) {
+        fprintf(stderr, "Error: tried to free node, but node is NULL\n");
+        exit(1);
+    }
+    if(node->data == NULL) {
+        fprintf(stderr, "Error: tried to free data from node, but node->data is NULL\n");
+        exit(1);
+    }
     free(node);
 }
 
@@ -100,6 +114,33 @@ void llist_free(llist *list){
 }
 
 
+void llist_free_wo_destroy(llist *list){
+    // Validate inputs //
+    if (list == NULL) {
+        fprintf(stderr, "Error: tried to free list, but list is NULL\n");
+        exit(1);
+    }
+    // Loop through the list and free each node //
+    llist_node *node = list->head;
+    while (node != NULL) {
+        llist_node *next = node->next;
+        llist_node_free_wo_destroy(node);
+        node = next;
+        list->length--;
+    }
+    // Check invariant //
+    if(list->length != 0) {
+        fprintf(stderr, "Error: list length is not zero after freeing all nodes\n");
+        exit(1);
+    }
+    // Set the head and tail to NULL//
+    list->head = NULL;
+    list->tail = NULL;
+    free(list);
+
+
+}
+
 // Append a node to the end of the list
 void llist_append(llist *list, void *data){
     // Validate inputs //
@@ -142,6 +183,19 @@ void *llist_get(llist *list, int index){
         node = node->next;
     }
     return node->data;
+}
+
+void *llist_get_tail(llist *list){
+    // Validate inputs //
+    if(list == NULL) {
+        fprintf(stderr, "Error: tried to get from list, but list is NULL\n");
+        exit(1);
+    }
+    if(list->length == 0) {
+        fprintf(stderr, "Error: tried to get from list, but list is empty\n");
+        exit(1);
+    }
+    return list->tail->data;
 }
 
 // Remove a node from the list
