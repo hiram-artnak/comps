@@ -5,6 +5,7 @@
 extern int get_line_number();
 int yylex(void);
 void yyerror (char const *mensagem);
+extern void* arvore;
 %}
 
 %code requires{
@@ -57,6 +58,10 @@ void yyerror (char const *mensagem);
 %type<node> f_body
 %type<node> function
 %type<node> program
+%type<node> null_program
+%type<node> actual_program_1
+%type<node> actual_program_2
+%type<node> function_list
 %define parse.error verbose
 %define parse.trace
 
@@ -64,9 +69,25 @@ void yyerror (char const *mensagem);
 
 /* A program is a list of variable declarations and functions, in any order */
 /* The program may also be empty */
-program: /* empty */ { $$ = ast_node_create(AST_NODE_TYPE_PROGRAM, NULL);}
-    | program var_declaration ';' 
-    | program function {ast_node_add_child($1, $2); $$ = $1;}
+program: null_program { $$ = NULL;}
+    | actual_program_1
+    | actual_program_2 { $$ = $1;}
+    ;
+
+null_program: /* empty */
+    ;
+
+actual_program_1: var_declaration
+    | actual_program_2 var_declaration {ast_node_add_child($1, $2); $$ = $1;}
+    ;
+
+actual_program_2: function_list {arvore = $1; $$ = $1;}
+    | actual_program_1 function_list {ast_node_add_child($1, $2); $$ = $1; arvore = $2;}
+    ;
+
+
+function_list: function
+    | function_list function {ast_node_add_child($1, $2); $$ = $1;}
     ;
 
 /* A variable declaration is a type followed by a list of identifiers */
@@ -89,7 +110,7 @@ function: f_header f_body {ast_node_add_child($1, $2); $$ = $1;}
     ;
 
 /* A function header is a parameter list, the TK_OC_GE token, a type, the '!' token and an identifier */    
-f_header: '(' param_list ')' TK_OC_GE type '!' TK_IDENTIFICADOR { $$ = ast_node_create(AST_NODE_TYPE_FUNCTION, $7); }
+f_header: '(' param_list ')' TK_OC_GE type '!' TK_IDENTIFICADOR { $$ = ast_node_create(AST_NODE_TYPE_FUNCTION, $7);}
 /* the parameter list may be empty */
     | '(' ')' TK_OC_GE type '!' TK_IDENTIFICADOR { $$ = ast_node_create(AST_NODE_TYPE_FUNCTION, $6);}
     ;
@@ -104,7 +125,7 @@ param: type TK_IDENTIFICADOR
     ;
 
 /* A function body is a command block */
-f_body: block
+f_body: block { ast_node_print($1); $$ = $1;}
     ;
 
 /* A command block is a list of commands enclosed by curly braces, followed by a semicolon*/

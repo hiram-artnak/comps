@@ -47,4 +47,5 @@ void ast_node_free(ast_node *node);
 void ast_node_add_child(ast_node *parent, ast_node *child);
 void ast_node_remove_child(ast_node *parent, void *key, ast_match_fn match);
 void ast_node_print(ast_node *node);
+void exporta(void *arvore);
 #endif

@@ -16,7 +16,7 @@ parser.tab.o: parser.tab.c parser.tab.h
 
 
 parser.tab.c, parser.tab.h: parser.y
-	bison -d parser.y
+	bison -d parser.y -Wcounterexamples 2> counterexamples.txt
 
 lex.yy.c: scanner.l parser.tab.h
 	flex scanner.l
@@ -24,4 +24,4 @@ lex.yy.c: scanner.l parser.tab.h
 .PHONY: clean
 
 clean:
-	rm -f lex.yy.c parser.tab.c *.o etapa3  parser.tab.h
+	rm -f lex.yy.c parser.tab.c *.o etapa3  parser.tab.h counterexamples.txt
