@@ -79,12 +79,22 @@ program: null_program { $$ = NULL;}
 null_program: /* empty */
     ;
 
-actual_program_1: var_declaration
-    | actual_program_2 var_declaration {ast_node_add_child($1, $2); $$ = $1;}
+actual_program_1: var_declaration ';' {$$ = NULL;}
+    | actual_program_2 var_declaration ';' {$$ = $1;}
+    | actual_program_1 var_declaration ';'{$$ = $1;}
     ;
 
 actual_program_2: function_list {ast_node *func = (ast_node *)llist_get($1, 0); arvore = func; $$ = func; llist_free_wo_destroy($1);}
-    | actual_program_1 function_list {ast_node *func = (ast_node *)llist_get($2, 0); ast_node_add_child($1, func); $$ = $1; arvore = func; llist_free_wo_destroy($2);}
+    | actual_program_1 function_list {
+        ast_node *func = (ast_node *)llist_get($2, 0);
+        llist_free_wo_destroy($2);
+        if($1 == NULL){
+            $$ = func;
+        } else {
+        ast_node_add_child($1, func); $$ = $1;
+        arvore = $1;
+        }
+    }
     ;
 
 
@@ -108,7 +118,12 @@ id_list: TK_IDENTIFICADOR { $$ = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1); 
     ;
 
 /* A function is made up of a header and a body*/
-function: f_header f_body {ast_node_add_child($1, $2); $$ = $1;}
+function: f_header f_body {
+    if ($2 != NULL){
+    ast_node_add_child($1, $2);
+    }
+    $$ = $1;
+}
     ;
 
 /* A function header is a parameter list, the TK_OC_GE token, a type, the '!' token and an identifier */    
