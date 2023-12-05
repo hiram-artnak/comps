@@ -127,7 +127,7 @@ param: type TK_IDENTIFICADOR
     ;
 
 /* A function body is a command block */
-f_body: block { ast_node_print($1); $$ = $1;}
+f_body: block {$$ = $1;}
     ;
 
 /* A command block is a list of commands enclosed by curly braces, followed by a semicolon*/
