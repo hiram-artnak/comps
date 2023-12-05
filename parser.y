@@ -90,6 +90,7 @@ actual_program_2: function_list {ast_node *func = (ast_node *)llist_get($1, 0); 
         llist_free_wo_destroy($2);
         if($1 == NULL){
             $$ = func;
+            arvore = func;
         } else {
         ast_node_add_child($1, func); $$ = $1;
         arvore = $1;
