@@ -239,6 +239,8 @@ operand: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENT
     | TK_LIT_FLOAT {ast_node *node = ast_node_create(AST_NODE_TYPE_LIT_FLOAT, $1); $$ = node;}
     | TK_LIT_FALSE {ast_node *node = ast_node_create(AST_NODE_TYPE_LIT_FALSE, $1); $$ = node;}
     | TK_LIT_TRUE {ast_node *node = ast_node_create(AST_NODE_TYPE_LIT_TRUE, $1); $$ = node;}
+    | TK_IDENTIFICADOR '(' expr_list ')' {ast_node *expr = (ast_node*)llist_get($3, 0); ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1); ast_node_add_child(node, expr); $$ = node; llist_free_wo_destroy($3);} 
+    | TK_IDENTIFICADOR '(' ')' {ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1); $$ = node;}
     ;
 
 expr_list: expr { llist* list = llist_create(NULL); llist_append(list, (void*) $1); $$ = list;}
