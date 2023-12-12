@@ -250,6 +250,9 @@ void *reducer_linked_list(const linked_list *list, void *(*reduce_function)(cons
     if(list->head == NULL){
         log_error_and_die("Tried to reduce a list but head is NULL\n");
     }
+    if(list->tail == NULL){
+        log_error_and_die("Tried to reduce a list but tail is NULL\n");
+    }
 
     linked_list_node *curr = list->tail;
     void *acc = curr->data;
