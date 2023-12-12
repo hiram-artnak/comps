@@ -259,7 +259,7 @@ void *reducer_linked_list(const linked_list *list, void *(*reduce_function)(cons
 
     while(curr != list->head){
         curr = curr->prev;
-        acc = reduce_function(acc, curr->data);
+        acc = reduce_function(curr->data, acc);
     }
     return acc;
 }
