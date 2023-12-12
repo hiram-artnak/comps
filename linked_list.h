@@ -32,6 +32,10 @@ void print_linked_list(linked_list *list, generic_print print_fn);
 linked_list *map_linked_list(linked_list *list, void*(map_function)(const void *));
 
 // Reduce the linked list (folding from the left!)
-void *reduce_linked_list(const linked_list *list, void *(*reduce_function)(const void *, const void *));
+void *reducel_linked_list(const linked_list *list, void *(*reduce_function)(const void *, const void *));
+
+// Reduce the linked list (folding from the right!)
+void *reducer_linked_list(const linked_list *list, void *(*reduce_function)(const void *, const void *));
+
 
 #endif //LINKED_LIST_H

@@ -224,7 +224,7 @@ linked_list *map_linked_list(linked_list *list, void*(map_function)(const void *
 }
 
 // Function to reduce a linked list (folding from the left)
-void *reduce_linked_list(const linked_list *list, void *(*reduce_function)(const void *, const void *)){
+void *reducel_linked_list(const linked_list *list, void *(*reduce_function)(const void *, const void *)){
     if(list == NULL){
         log_error_and_die("Tried to reduce a NULL list\n");
     }
@@ -237,6 +237,25 @@ void *reduce_linked_list(const linked_list *list, void *(*reduce_function)(const
 
     while(curr->next != NULL){
         curr = curr->next;
+        acc = reduce_function(acc, curr->data);
+    }
+    return acc;
+}
+
+// Reduce the linked list (folding from the right!)
+void *reducer_linked_list(const linked_list *list, void *(*reduce_function)(const void *, const void *)){
+    if(list == NULL){
+        log_error_and_die("Tried to reduce a NULL list\n");
+    }
+    if(list->head == NULL){
+        log_error_and_die("Tried to reduce a list but head is NULL\n");
+    }
+
+    linked_list_node *curr = list->tail;
+    void *acc = curr->data;
+
+    while(curr != list->head){
+        curr = curr->prev;
         acc = reduce_function(acc, curr->data);
     }
     return acc;
