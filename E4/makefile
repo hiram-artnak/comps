@@ -1,9 +1,9 @@
 CC=gcc
 LIBS=-lfl
 CFLAGS = -I.
-DEPS=lexeme.c linked_list.c ast.c utils.c
+DEPS=lexeme.c linked_list.c ast.c utils.c hash_table.c stack.c symbol.c
 BISON_DEPS= ast.o linked_list.o
-OBJ = main.o utils.o ast.o linked_list.o lex.yy.o parser.tab.o
+OBJ = main.o utils.o ast.o linked_list.o lex.yy.o parser.tab.o hash_table.o stack.o symbol.o
 
 etapa3: $(OBJ)
 	$(CC) -o $@ $^ $(LIBS)

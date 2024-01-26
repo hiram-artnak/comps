@@ -1,5 +1,5 @@
 #include "symbol.h"
-
+#include "utils.h"
 symbol *symbol_create(unsigned int line, symbol_type symbol_type, type_system_type data_type, lexeme *lexeme){
     symbol *s = f_malloc(sizeof(symbol));
     s->line = line;

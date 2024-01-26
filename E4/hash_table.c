@@ -1,6 +1,7 @@
 #include "hash_table.h"
 #include "linked_list.h"
 #include <string.h>
+#include "utils.h"
 
 #define HASH_TABLE_SIZE 1051
 

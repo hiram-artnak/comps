@@ -73,7 +73,7 @@ ast_node* current_function = NULL;
 %%
 
 program: /* empty */ { 
-    $$ = ast_node_create(AST_NODE_TYPE_PROGRAM_START, NULL);
+    $$ = ast_node_create(AST_NODE_TYPE_PROGRAM_START, NULL, TYPE_SYSTEM_TYPE_FAKE);
     arvore = $$;
 }
     | program global_declaration { $$ = $1; }
@@ -93,7 +93,7 @@ program: /* empty */ {
 global_declaration: variable_declaration ';'
     ;
 
-variable_declaration: type identifier_list {$$ = ast_node_create(AST_NODE_TYPE_EMPTY, NULL);}
+variable_declaration: type identifier_list {$$ = ast_node_create(AST_NODE_TYPE_EMPTY, NULL, TYPE_SYSTEM_TYPE_FAKE);}
     ;
 
 type: TK_PR_INT
@@ -106,7 +106,7 @@ identifier_list: TK_IDENTIFICADOR
     ;
 
 function: function_header command_block {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION, $1);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION, $1, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, deconstruct_list($2));
         $$ = node;
 }
@@ -143,21 +143,21 @@ command_block: '{' commands '}' { $$ = $2;}
     ;
 
 attribution_command: TK_IDENTIFICADOR '=' expression {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_ATTRIBUTION, $1);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_ATTRIBUTION, $1, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $3);
         $$ = node;
 }
     ;
 
 return_command: TK_PR_RETURN expression{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_RETURN, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_RETURN, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $2);
         $$ = node;
 }
     ;
 
 function_call: TK_IDENTIFICADOR '(' arguments ')'{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, deconstruct_list($3));
         $$ = node;
 }
@@ -169,7 +169,7 @@ arguments: /* empty */ { $$ = ast_node_list_create();}
     ;
 
 if_command: TK_PR_IF '(' expression ')' command_block else_part{
-            ast_node *node = ast_node_create(AST_NODE_TYPE_IF, NULL);
+            ast_node *node = ast_node_create(AST_NODE_TYPE_IF, NULL, TYPE_SYSTEM_TYPE_FAKE);
             ast_node_add_child(node, $3);
             ast_node_add_child(node, deconstruct_list($5));
             if($6 != NULL)
@@ -180,52 +180,52 @@ if_command: TK_PR_IF '(' expression ')' command_block else_part{
 
 else_part: /* empty */ { $$ = NULL;}
          | TK_PR_ELSE command_block {
-            ast_node *node = ast_node_create(AST_NODE_TYPE_ELSE, NULL);
+            ast_node *node = ast_node_create(AST_NODE_TYPE_ELSE, NULL, TYPE_SYSTEM_TYPE_FAKE);
             ast_node_add_child(node, deconstruct_list($2));
             $$ = node;
          }
          ;
 
 while_command: TK_PR_WHILE '(' expression ')' command_block{
-                ast_node *node = ast_node_create(AST_NODE_TYPE_WHILE, NULL);
+                ast_node *node = ast_node_create(AST_NODE_TYPE_WHILE, NULL, TYPE_SYSTEM_TYPE_FAKE);
                 ast_node_add_child(node, $3);
                 ast_node_add_child(node, deconstruct_list($5));
                 $$ = node;
 }
              ;
 
-literal: TK_LIT_FALSE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1); $$ = node;}
-    | TK_LIT_TRUE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1); $$ = node;}
-    | TK_LIT_INT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1); $$ = node;}
-    | TK_LIT_FLOAT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1); $$ = node;}
+literal: TK_LIT_FALSE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
+    | TK_LIT_TRUE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
+    | TK_LIT_INT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
+    | TK_LIT_FLOAT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
     ;
 
-primary: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1); $$ = node;}
+primary: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
     | literal { $$ = $1;}
     | function_call { $$ = $1;}
     | '(' expression ')' { $$ = $2;}
     ;
 
 unary: primary { $$ = $1; }
-    | '!' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_NEGATION, NULL); $$ = node;}
-    | '-' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_NUMERICAL_NEGATION, NULL); $$ = node;}
+    | '!' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_NEGATION, NULL, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
+    | '-' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_NUMERICAL_NEGATION, NULL, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
     ;
 
 factor: unary { $$ = $1; }
     | factor '*' unary { 
-        ast_node *node = ast_node_create(AST_NODE_TYPE_MULTIPLICATION, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_MULTIPLICATION, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
         }
     | factor '/' unary {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_DIVISION, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_DIVISION, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
     }
     | factor '%' unary{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_MODULO, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_MODULO, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
@@ -234,13 +234,13 @@ factor: unary { $$ = $1; }
 
 term: factor { $$ = $1; }
     | term '+' factor {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_ADDITION, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_ADDITION, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
     }
     | term '-' factor{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_SUBTRACTION, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_SUBTRACTION, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
@@ -249,25 +249,25 @@ term: factor { $$ = $1; }
 
 order: term { $$ = $1; }
     | order '<' term{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_LESS_THAN, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_LESS_THAN, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
     }
     | order '>' term{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_GREATER_THAN, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_GREATER_THAN, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
     }
     | order TK_OC_GE term{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_GREATER_EQUAL, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_GREATER_EQUAL, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
     }
     | order TK_OC_LE term{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_LESS_EQUAL, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_LESS_EQUAL, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
@@ -276,13 +276,13 @@ order: term { $$ = $1; }
 
 identity: order { $$ = $1; }
     | identity TK_OC_EQ order{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_EQUAL, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_EQUAL, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
     }
     | identity TK_OC_NE order{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_NOT_EQUAL, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_NOT_EQUAL, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
@@ -291,7 +291,7 @@ identity: order { $$ = $1; }
 
 and_expr: identity { $$ = $1; }
     | and_expr TK_OC_AND identity{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_AND, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_AND, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
@@ -300,7 +300,7 @@ and_expr: identity { $$ = $1; }
 
 expression: and_expr { $$ = $1; }
     | expression TK_OC_OR and_expr{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_OR, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_OR, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;

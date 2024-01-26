@@ -6,7 +6,7 @@
 
 typedef linked_list ast_node_list;
 
-typedef struct Lexeme{
+typedef struct lexeme{
     char *value;
     int line;
     lexeme_type type;

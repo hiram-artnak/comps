@@ -18,6 +18,7 @@ typedef enum lexeme_type{
 }lexeme_type;
 
 lexeme *lexeme_create(char *value, int line, lexeme_type type);
+void lexeme_destroy(lexeme *l);
 
 typedef struct ast_node ast_node;
 typedef enum ast_node_type{
