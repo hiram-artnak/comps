@@ -72,6 +72,9 @@ void ast_node_add_child(ast_node *node, ast_node *child){
 
 
 void ast_node_print(ast_node *node){
+    if(node->type == AST_NODE_TYPE_EMPTY){
+        return;
+    }
     // prints pointer position [label="value"]
     char out_str[100];
     switch (node->type){
@@ -153,9 +156,12 @@ void ast_node_print(ast_node *node){
 }
 
 void ast_node_print_tree(ast_node *node){
+    if(node->type == AST_NODE_TYPE_EMPTY){
+        return;
+    }
     for(int i = 0; i < ast_node_list_size(node->children); i++){
         ast_node *child = ast_node_list_get(node->children, i);
-        printf("%p, %p", node, child);
+        if(child->type != AST_NODE_TYPE_EMPTY) printf("%p, %p", node, child);
     }
     ast_node_print(node);
     for(int i = 0; i < ast_node_list_size(node->children); i++){
@@ -170,6 +176,20 @@ void ast_node_set_children(ast_node *node, ast_node_list *children){
     node->children = children;
 }
 
+ast_node *deconstruct_list(ast_node_list *list){
+    if(ast_node_list_size(list) == 0){
+        ast_node *node = ast_node_create(AST_NODE_TYPE_EMPTY, NULL);
+        return node;
+    }
+    ast_node *first = ast_node_list_pop_front(list);
+    ast_node *current = first;
+    while(ast_node_list_size(list) > 0){
+        ast_node *next = ast_node_list_pop_front(list);
+        ast_node_add_child(current, next);
+        current = next;
+    }
+    return first;
+}
 
 
 // List

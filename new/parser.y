@@ -5,6 +5,7 @@ extern void *arvore;
 %}
 
 %code requires{
+    #include "utils.h"
     #include "ast.h"
     #include "linked_list.h"
     #include <string.h>
@@ -71,20 +72,7 @@ program: /* empty */ {
     arvore = $$;
 }
     | program global_declaration { $$ = $1; }
-    | program function_list {
-        if(!ast_node_list_empty($2)){
-            ast_node *first = ast_node_list_pop_front($2);
-            ast_node *current = first;
-            while(!ast_node_list_empty($2)){
-                ast_node *next = ast_node_list_pop_front($2);
-                ast_node_add_child(current, next);
-                current = next;
-            }
-            $$ = first;
-        }else{
-            $$ = ast_node_create(AST_NODE_TYPE_EMPTY, NULL);
-        }
-    }
+    | program function_list { $$ = $1; ast_node_add_child($$, deconstruct_list($2));}
     ;
 
 global_declaration: variable_declaration ';'
@@ -107,12 +95,12 @@ function_list: /* empty */ { $$ = ast_node_list_create();}
 
 function: function_header command_block {
         ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION, $1);
-        ast_node_add_child(node, $2);
+        ast_node_add_child(node, deconstruct_list($2));
         $$ = node;
 }
     ;
 
-function_header: parameter_list TK_OC_GE type '!' TK_IDENTIFICADOR {$$=$5}
+function_header: parameter_list TK_OC_GE type '!' TK_IDENTIFICADOR {$$=$5;}
     ;
 
 parameter_list: '('parameters')'
@@ -130,20 +118,7 @@ commands: /* empty */ { $$ = ast_node_list_create();}
     | commands command {ast_node_list_push_back($1, $2); $$ = $1;}
     ;
 
-command: command_block ';' {
-    if(!ast_node_list_empty($1)){
-        ast_node_list *first = ast_node_list_pop_front($1);
-        ast_node_list *current = first;
-        while(!ast_node_list_empty($1)){
-            ast_node_list *next = ast_node_list_pop_front($1);
-            ast_node_add_child(current, next);
-            current = next;
-        }
-        $$ = first;
-    }else{
-        $$ = ast_node_creat(AST_NODE_TYPE_EMPTY, NULL);
-    }
-}
+command: command_block ';' { $$ = deconstruct_list($1);}
        | variable_declaration ';'
        | attribution_command ';' { $$ = $1;}
        | function_call ';' { $$ = $1;}
@@ -171,9 +146,7 @@ return_command: TK_PR_RETURN expression{
 
 function_call: TK_IDENTIFICADOR '(' arguments ')'{
         ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1);
-        if(!ast_node_list_empty){
-            ast_node_list_set_children(node, $3);
-        }
+        ast_node_add_child(node, deconstruct_list($3));
         $$ = node;
 }
     ;
@@ -186,7 +159,7 @@ arguments: /* empty */ { $$ = ast_node_list_create();}
 if_command: TK_PR_IF '(' expression ')' command_block else_part{
             ast_node *node = ast_node_create(AST_NODE_TYPE_IF, NULL);
             ast_node_add_child(node, $3);
-            ast_node_add_child(node, $5);
+            ast_node_add_child(node, deconstruct_list($5));
             if($6 != NULL)
                 ast_node_add_child(node, $6);
             $$ = node;
@@ -196,7 +169,7 @@ if_command: TK_PR_IF '(' expression ')' command_block else_part{
 else_part: /* empty */ { $$ = NULL;}
          | TK_PR_ELSE command_block {
             ast_node *node = ast_node_create(AST_NODE_TYPE_ELSE, NULL);
-            ast_node_add_child(node, $2);
+            ast_node_add_child(node, deconstruct_list($2));
             $$ = node;
          }
          ;
@@ -204,7 +177,7 @@ else_part: /* empty */ { $$ = NULL;}
 while_command: TK_PR_WHILE '(' expression ')' command_block{
                 ast_node *node = ast_node_create(AST_NODE_TYPE_WHILE, NULL);
                 ast_node_add_child(node, $3);
-                ast_node_add_child(node, $5);
+                ast_node_add_child(node, deconstruct_list($5));
                 $$ = node;
 }
              ;
@@ -222,8 +195,8 @@ primary: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENT
     ;
 
 unary: primary { $$ = $1; }
-    | '!' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_NEGATION, $2); $$ = node;}
-    | '-' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_NUMERICAL_NEGATION, $2); $$ = node;}
+    | '!' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_NEGATION, NULL); $$ = node;}
+    | '-' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_NUMERICAL_NEGATION, NULL); $$ = node;}
     ;
 
 factor: unary { $$ = $1; }
