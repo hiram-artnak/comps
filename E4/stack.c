@@ -3,8 +3,13 @@
 #include <string.h>
 
 stack *stack_create(destroy_data destroy){
-    return linked_list_create(destroy);
+    return (stack *)linked_list_create(destroy);
 
+}
+void stack_create_if_null(stack **stack, destroy_data destroy){
+    if(*stack == NULL){
+        *stack = stack_create(destroy);
+    }
 }
 void stack_destroy(stack *stack){
     linked_list_destroy(stack);

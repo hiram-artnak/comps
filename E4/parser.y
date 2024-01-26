@@ -5,12 +5,19 @@ extern void *arvore;
 extern int get_line_number();
 #include <string.h>
 #include "ast.h"
+#include "stack.h"
+#include "hash_table.h"
+
+stack *scope_stack = NULL;
 ast_node* current_function = NULL;
 %}
 
 %code requires{
     #include "utils.h"
     #include "ast.h"
+    #include "stack.h"
+    #include "symbol.h"
+    #include "hash_table.h"
     #include "linked_list.h"
     #include <string.h>
     #include <stdio.h>
