@@ -9,12 +9,6 @@ typedef enum symbol_type{
     SYMBOL_TYPE_FUNCTION
 }symbol_type;
 
-typedef enum type_system_type{
-    TYPE_SYSTEM_TYPE_INT,
-    TYPE_SYSTEM_TYPE_FLOAT,
-    TYPE_SYSTEM_TYPE_BOOL
-}type_system_type;  
-
 typedef struct symbol{
     unsigned int line;
     symbol_type symbol_type;

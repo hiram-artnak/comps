@@ -3,6 +3,12 @@
 
 #include "linked_list.h"
 
+typedef enum type_system_type{
+    TYPE_SYSTEM_TYPE_INT,
+    TYPE_SYSTEM_TYPE_FLOAT,
+    TYPE_SYSTEM_TYPE_BOOL
+}type_system_type;  
+
 typedef struct lexeme lexeme;
 
 typedef enum lexeme_type{
