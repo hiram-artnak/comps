@@ -150,18 +150,25 @@ void ast_node_print(ast_node *node){
         default:
             return;
     }
-    printf("%p [label=\"%s\"]\n", node, out_str);
+    printf("%p [label=\"%s\"];\n", node, out_str);
 }
 
 void ast_node_print_tree(ast_node *node){
     if(node->type == AST_NODE_TYPE_EMPTY){
         return;
     }
-    for(int i = 0; i < ast_node_list_size(node->children); i++){
-        ast_node *child = ast_node_list_get(node->children, i);
-        if(child->type != AST_NODE_TYPE_EMPTY) printf("%p, %p", node, child);
+    if(node->type == AST_NODE_TYPE_PROGRAM_START){
+        for(int i = 0; i < ast_node_list_size(node->children); i++){
+            ast_node *child = ast_node_list_get(node->children, i);
+            ast_node_print_tree(child);
+        }
+        return;
     }
     ast_node_print(node);
+    for(int i = 0; i < ast_node_list_size(node->children); i++){
+        ast_node *child = ast_node_list_get(node->children, i);
+        if(child->type != AST_NODE_TYPE_EMPTY) printf("%p, %p\n", node, child);
+    }
     for(int i = 0; i < ast_node_list_size(node->children); i++){
         ast_node *child = ast_node_list_get(node->children, i);
         ast_node_print_tree(child);
