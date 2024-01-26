@@ -16,7 +16,7 @@ typedef enum lexeme_type{
     LEXEME_TYPE_LITERAL
 }lexeme_type;
 
-lexeme *lexeme_create(char *value, int line, lexeme_type type, type_system_type data_type);
+lexeme *lexeme_create(char *value, int line, lexeme_type type);
 
 typedef struct ast_node ast_node;
 typedef enum ast_node_type{
@@ -60,7 +60,7 @@ typedef enum ast_node_type{
 // Special list for ast_node
 typedef linked_list ast_node_list;
 
-ast_node *ast_node_create(ast_node_type type, lexeme *value);
+ast_node *ast_node_create(ast_node_type type, lexeme *value, type_system_type data_type);
 void ast_node_destroy(ast_node *node);
 void ast_node_add_child(ast_node *node, ast_node *child);
 void ast_node_print(ast_node *node);
