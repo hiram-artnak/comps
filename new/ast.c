@@ -148,11 +148,9 @@ void ast_node_print(ast_node *node){
             sprintf(out_str, "%s", node->value->value);
             break;
         default:
-            f_free(out_str);
             return;
     }
     printf("%p [label=\"%s\"]\n", node, out_str);
-    f_free(out_str);
 }
 
 void ast_node_print_tree(ast_node *node){
