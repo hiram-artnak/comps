@@ -179,6 +179,7 @@ void ast_node_set_children(ast_node *node, ast_node_list *children){
 ast_node *deconstruct_list(ast_node_list *list){
     if(ast_node_list_size(list) == 0){
         ast_node *node = ast_node_create(AST_NODE_TYPE_EMPTY, NULL);
+        ast_node_list_destroy(list);
         return node;
     }
     ast_node *first = ast_node_list_pop_front(list);
@@ -188,6 +189,7 @@ ast_node *deconstruct_list(ast_node_list *list){
         ast_node_add_child(current, next);
         current = next;
     }
+    ast_node_list_destroy(list);
     return first;
 }
 
