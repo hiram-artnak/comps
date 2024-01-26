@@ -69,6 +69,15 @@ void ast_node_destroy(ast_node *node){
     f_free(node);
 }
 void ast_node_add_child(ast_node *node, ast_node *child){
+    if(child->type == AST_NODE_TYPE_EMPTY){
+        if(ast_node_list_size(child->children) > 0){
+            ast_node *first = ast_node_list_pop_front(child->children);
+            ast_node_add_child(node, first);
+            ast_node_list_destroy(child->children);
+            f_free(child);
+            return;
+        }
+    }
     ast_node_list_push_back(node->children, child);
 }
 
@@ -183,7 +192,7 @@ void ast_node_set_children(ast_node *node, ast_node_list *children){
 
 ast_node *deconstruct_list(ast_node_list *list){
     if(ast_node_list_size(list) == 0){
-        ast_node *node = ast_node_create(AST_NODE_TYPE_EMPTY, NULL);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_EMPTY, NULL, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_list_destroy(list);
         return node;
     }

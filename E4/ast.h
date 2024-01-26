@@ -6,7 +6,8 @@
 typedef enum type_system_type{
     TYPE_SYSTEM_TYPE_INT,
     TYPE_SYSTEM_TYPE_FLOAT,
-    TYPE_SYSTEM_TYPE_BOOL
+    TYPE_SYSTEM_TYPE_BOOL,
+    TYPE_SYSTEM_TYPE_FAKE
 }type_system_type;  
 
 typedef struct lexeme lexeme;
