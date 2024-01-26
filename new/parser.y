@@ -2,6 +2,7 @@
 int yylex(void);
 void yyerror (char const *mensagem);
 extern void *arvore;
+extern int get_line_number();
 %}
 
 %code requires{
@@ -9,6 +10,7 @@ extern void *arvore;
     #include "ast.h"
     #include "linked_list.h"
     #include <string.h>
+    #include <stdio.h>
 }
 
 %union{
@@ -296,3 +298,6 @@ expression: and_expr { $$ = $1; }
     ;
 
 %%
+void yyerror (char const *s) {
+    fprintf (stderr, "In line %d... %s.\n", get_line_number(), s);
+} 
