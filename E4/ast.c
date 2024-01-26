@@ -50,15 +50,17 @@ typedef struct ast_node{
     lexeme *value;
     ast_node_list *children;
     ast_node_type type;
+    type_system_type data_type;
 } ast_node;
 
 
 
-ast_node *ast_node_create(ast_node_type type, lexeme *value){
+ast_node *ast_node_create(ast_node_type type, lexeme *value, type_system_type data_type){
     ast_node *node = f_malloc(sizeof(ast_node));
     node->value = value;
     node->children = ast_node_list_create();
     node->type = type;
+    node->data_type = data_type;
     return node;
 }
 void ast_node_destroy(ast_node *node){
