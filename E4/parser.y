@@ -67,7 +67,7 @@ ast_node* current_function = NULL;
 %type<list> commands
 
 %type<node> function
-%type<lex> function_header
+%type<node> function_header
 
 %type<node> identifier
 
@@ -111,13 +111,13 @@ identifier_list: identifier
     ;
 
 function: function_header command_block {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION, $1, TYPE_SYSTEM_TYPE_FAKE);
+        ast_node *node = $1;
         ast_node_add_child(node, deconstruct_list($2));
         $$ = node;
 }
     ;
 
-function_header: parameter_list TK_OC_GE type '!' identifier {$$=$5;}
+function_header: parameter_list TK_OC_GE type '!' identifier {$$=$5; ast_node_set_type($$, AST_NODE_TYPE_FUNCTION);}
     ;
 
 parameter_list: '('parameters')'
@@ -163,7 +163,8 @@ return_command: TK_PR_RETURN expression{
     ;
 
 function_call: identifier '(' arguments ')'{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1, TYPE_SYSTEM_TYPE_FAKE);
+        ast_node *node = $1;
+        ast_node_set_type(node, AST_NODE_TYPE_FUNCTION_CALL);
         ast_node_add_child(node, deconstruct_list($3));
         $$ = node;
 }

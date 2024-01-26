@@ -69,6 +69,7 @@ void ast_node_print(ast_node *node);
 void ast_node_print_tree(ast_node *node);
 void ast_node_set_children(ast_node *node, ast_node_list *children);
 ast_node *deconstruct_list(ast_node_list *list);
+void ast_node_set_type(ast_node *node, ast_node_type type);
 
 
 ast_node_list *ast_node_list_create();

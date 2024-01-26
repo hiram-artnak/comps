@@ -207,6 +207,10 @@ ast_node *deconstruct_list(ast_node_list *list){
     return first;
 }
 
+void ast_node_set_type(ast_node *node, ast_node_type type){
+    node->type = type;
+}
+
 
 // List
 
@@ -257,3 +261,4 @@ ast_node *ast_node_list_get(ast_node_list *list, int index){
 void ast_node_list_print(ast_node_list *list){
     linked_list_print(list, (print_data)ast_node_print);
 }
+
