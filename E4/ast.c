@@ -108,7 +108,7 @@ void ast_node_print(ast_node *node){
             strcpy(out_str, "/");
             break;
         case AST_NODE_TYPE_MODULO:
-            strcpy(out_str, "%%");
+            strcpy(out_str, "%");
             break;
         case AST_NODE_TYPE_ADDITION:
             strcpy(out_str, "+");
