@@ -69,6 +69,8 @@ ast_node* current_function = NULL;
 %type<node> function
 %type<lex> function_header
 
+%type<node> identifier
+
 %type<node> program
 %%
 
@@ -101,8 +103,11 @@ type: TK_PR_INT
     | TK_PR_BOOL
     ;
 
-identifier_list: TK_IDENTIFICADOR
-    | identifier_list ',' TK_IDENTIFICADOR
+identifier: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
+    ;
+
+identifier_list: identifier
+    | identifier_list ',' identifier
     ;
 
 function: function_header command_block {
@@ -112,7 +117,7 @@ function: function_header command_block {
 }
     ;
 
-function_header: parameter_list TK_OC_GE type '!' TK_IDENTIFICADOR {$$=$5;}
+function_header: parameter_list TK_OC_GE type '!' identifier {$$=$5;}
     ;
 
 parameter_list: '('parameters')'
@@ -123,7 +128,7 @@ parameters: /* empty */
     | parameter
     ;
 
-parameter: type TK_IDENTIFICADOR
+parameter: type identifier
     ;
 
 commands: /* empty */ { $$ = ast_node_list_create();}
@@ -142,8 +147,9 @@ command: command_block ';' { $$ = deconstruct_list($1);}
 command_block: '{' commands '}' { $$ = $2;}
     ;
 
-attribution_command: TK_IDENTIFICADOR '=' expression {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_ATTRIBUTION, $1, TYPE_SYSTEM_TYPE_FAKE);
+attribution_command: identifier '=' expression {
+        ast_node *node = ast_node_create(AST_NODE_TYPE_ATTRIBUTION, NULL, TYPE_SYSTEM_TYPE_FAKE);
+        ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
 }
@@ -156,7 +162,7 @@ return_command: TK_PR_RETURN expression{
 }
     ;
 
-function_call: TK_IDENTIFICADOR '(' arguments ')'{
+function_call: identifier '(' arguments ')'{
         ast_node *node = ast_node_create(AST_NODE_TYPE_FUNCTION_CALL, $1, TYPE_SYSTEM_TYPE_FAKE);
         ast_node_add_child(node, deconstruct_list($3));
         $$ = node;
@@ -200,7 +206,7 @@ literal: TK_LIT_FALSE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, 
     | TK_LIT_FLOAT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
     ;
 
-primary: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
+primary: identifier { $$ = $1;}
     | literal { $$ = $1;}
     | function_call { $$ = $1;}
     | '(' expression ')' { $$ = $2;}
