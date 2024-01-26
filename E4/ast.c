@@ -262,3 +262,6 @@ void ast_node_list_print(ast_node_list *list){
     linked_list_print(list, (print_data)ast_node_print);
 }
 
+void exporta(void *arvore){
+  ast_node_print_tree(arvore);
+}

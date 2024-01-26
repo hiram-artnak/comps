@@ -105,9 +105,15 @@ global_declaration: variable_declaration ';'
 variable_declaration: type identifier_list {$$ = ast_node_create(AST_NODE_TYPE_EMPTY, NULL, TYPE_SYSTEM_TYPE_FAKE);}
     ;
 
-type: TK_PR_INT
-    | TK_PR_FLOAT
-    | TK_PR_BOOL
+type: TK_PR_INT {
+    stack_create_if_null(&scope_stack, (destroy_data)hash_table_destroy);
+    }
+    | TK_PR_FLOAT{
+    stack_create_if_null(&scope_stack, (destroy_data)hash_table_destroy);
+    }
+    | TK_PR_BOOL{
+    stack_create_if_null(&scope_stack, (destroy_data)hash_table_destroy);
+    }
     ;
 
 identifier: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
@@ -127,7 +133,7 @@ function: function_header command_block {
 function_header: parameter_list TK_OC_GE type '!' identifier {$$=$5; ast_node_set_type($$, AST_NODE_TYPE_FUNCTION);}
     ;
 
-parameter_list: '('parameters')'
+parameter_list: '('parameters')'{ stack_create_if_null(&scope_stack, (destroy_data)hash_table_destroy);}
     ;
 
 parameters: /* empty */
