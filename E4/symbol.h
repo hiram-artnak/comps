@@ -3,24 +3,27 @@
 
 #include "ast.h"
 
-typedef enum SymbolType{
+typedef enum symbol_type{
     SYMBOL_TYPE_LITERAL,
     SYMBOL_TYPE_IDENTIFIER,
     SYMBOL_TYPE_FUNCTION
-}SymbolType;
+}symbol_type;
 
-typedef enum Type{
+typedef enum type_system_type{
+    TYPE_SYSTEM_TYPE_INT,
+    TYPE_SYSTEM_TYPE_FLOAT,
+    TYPE_SYSTEM_TYPE_BOOL
+}type_system_type;  
 
-}Type;  
-
-typedef struct Symbol{
+typedef struct symbol{
     unsigned int line;
-    SymbolType symbol_type;
-    Type data_type;
+    symbol_type symbol_type;
+    type_system_type data_type;
     lexeme *lexeme;
-}Symbol;
+}symbol;
 
-
-
+symbol *symbol_create(unsigned int line, symbol_type symbol_type, type_system_type data_type, lexeme *lexeme);
+void symbol_destroy(symbol *symbol);
+type_system_type type_infer(symbol *symbol_a, symbol *symbol_b);
 
 #endif
