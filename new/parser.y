@@ -3,6 +3,9 @@ int yylex(void);
 void yyerror (char const *mensagem);
 extern void *arvore;
 extern int get_line_number();
+#include <string.h>
+#include "ast.h"
+ast_node* current_function = NULL;
 %}
 
 %code requires{
@@ -54,6 +57,7 @@ extern int get_line_number();
 %type<node> while_command
 
 %type<node> command
+%type<node> variable_declaration
 %type<node> attribution_command
 %type<node> return_command
 %type<node> function_call
@@ -64,7 +68,6 @@ extern int get_line_number();
 
 %type<node> function
 %type<lex> function_header
-%type<list> function_list
 
 %type<node> program
 %%
@@ -74,13 +77,24 @@ program: /* empty */ {
     arvore = $$;
 }
     | program global_declaration { $$ = $1; }
-    | program function_list { $$ = $1; ast_node_add_child($$, deconstruct_list($2));}
+    | program function {
+        if(current_function != NULL){
+            ast_node_add_child(current_function, $2);
+        }else{
+            ast_node_add_child($1, $2);
+
+        }
+        current_function = $2; $$ = $1;
+    }
     ;
+
+
 
 global_declaration: variable_declaration ';'
     ;
 
-variable_declaration: type identifier_list 
+variable_declaration: type identifier_list {$$ = ast_node_create(AST_NODE_TYPE_EMPTY, NULL);}
+    ;
 
 type: TK_PR_INT
     | TK_PR_FLOAT
@@ -89,10 +103,6 @@ type: TK_PR_INT
 
 identifier_list: TK_IDENTIFICADOR
     | identifier_list ',' TK_IDENTIFICADOR
-    ;
-
-function_list: /* empty */ { $$ = ast_node_list_create();}
-    | function_list function {ast_node_list_push_back($1, $2); $$ = $1;}
     ;
 
 function: function_header command_block {
@@ -121,7 +131,7 @@ commands: /* empty */ { $$ = ast_node_list_create();}
     ;
 
 command: command_block ';' { $$ = deconstruct_list($1);}
-       | variable_declaration ';'
+       | variable_declaration ';' { $$ = $1;}
        | attribution_command ';' { $$ = $1;}
        | function_call ';' { $$ = $1;}
        | return_command ';' { $$ = $1;}
