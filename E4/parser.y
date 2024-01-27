@@ -145,17 +145,17 @@ identifier_list: identifier {$$ = ast_node_list_create(); ast_node_list_push_bac
     ;
 
 function: function_header command_block {
-        ast_node *node = $1;
-        ast_node_add_child(node, deconstruct_list($2));
-        $$ = node;
+        ast_node *node = $1; 
+        ast_node_add_child(node, deconstruct_list($2)); 
+        $$ = node; 
 }
     ;
 
 function_header: parameter_list TK_OC_GE type '!' identifier {
-    fail_if_declared(scope_stack, $5);
-    symbol *sym = symbol_create($3, SYMBOL_TYPE_FUNCTION, $5->lexeme);
-    add_symbol(scope_stack, sym);
-    $$=$5; ast_node_set_type($$, AST_NODE_TYPE_FUNCTION);
+    fail_if_declared(scope_stack, $5); 
+    symbol *sym = symbol_create($3, SYMBOL_TYPE_FUNCTION, $5->lexeme); 
+    add_symbol(scope_stack, sym); 
+    $$=$5; ast_node_set_type($$, AST_NODE_TYPE_FUNCTION); 
     }
     ;
 
@@ -184,10 +184,10 @@ command: command_block ';' { $$ = deconstruct_list($1);}
        ;
 
 
-open_block: '{' { add_new_scope(scope_stack); }
+open_block: '{' { add_new_scope(scope_stack);  }
     ;
 
-close_block: '}' { remove_current_scope(scope_stack); }
+close_block: '}' { remove_current_scope(scope_stack); } 
 
 command_block: open_block commands close_block {
     $$ = $2;

@@ -25,7 +25,8 @@ void *stack_pop(stack *stack){
     return linked_list_pop_front(stack);
 }
 int stack_is_declared(stack *stack, char *identifier){
-    for(int i = 0; i < linked_list_size(stack); i++){
+    int stack_size = linked_list_size(stack);
+    for(int i = 0; i < stack_size; i++){
         hash_table *table = linked_list_get(stack, i);
         if(hash_table_is_member(table, identifier)){
             return 1;
@@ -33,8 +34,10 @@ int stack_is_declared(stack *stack, char *identifier){
     }
     return 0;
 }
+#include <stdio.h>
 void *stack_get(stack *stack, char *identifier){
-    for(int i = 0; i < linked_list_size(stack); i++){
+    int stack_size = linked_list_size(stack);
+    for(int i = 0; i < stack_size; i++){
         hash_table *table = linked_list_get(stack, i);
         if(hash_table_is_member(table, identifier)){
             return hash_table_get(table, identifier);

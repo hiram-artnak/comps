@@ -48,8 +48,8 @@ void fail_if_declared(stack *stack, ast_node *node){
 
 void fail_if_not_variable(stack *stack, ast_node *node){
     symbol *s = stack_get(stack, node->lexeme->value);
-    if (s->sym_type == SYMBOL_TYPE_IDENTIFIER) {
-        printf("Error: %s in line %d is not a variable\n", node->lexeme->value, node->lexeme->line);
+    if (s->sym_type != SYMBOL_TYPE_IDENTIFIER) {
+        printf("Error: %s in line %d is not a variable\nIt is a function declared on line %d\n", node->lexeme->value, node->lexeme->line, s->lexeme->line);
         exit(1);
     }
 }
