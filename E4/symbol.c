@@ -1,11 +1,18 @@
 #include "symbol.h"
 #include "utils.h"
+#include <stdio.h>
+
+#ifdef SYMBOL_DEBUG
+#define DEBUG_PRINT printf("File:%s : Line:%d\n", __FILE__, __LINE__);
+#else
+#define DEBUG_PRINT
+#endif
 
 symbol *symbol_create(type_system_type data_type, symbol_type sym_type, lexeme *lexeme){
-    symbol *s = f_malloc(sizeof(symbol));
-    s->data_type = data_type;
-    s->sym_type = sym_type;
-    s->lexeme = lexeme;
+    symbol *s = f_malloc(sizeof(symbol)); DEBUG_PRINT
+    s->data_type = data_type; DEBUG_PRINT
+    s->sym_type = sym_type; DEBUG_PRINT
+    s->lexeme = lexeme; DEBUG_PRINT
     return s;
 
 }

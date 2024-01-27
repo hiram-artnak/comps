@@ -42,3 +42,7 @@ void *stack_get(stack *stack, char *identifier){
     }
     return NULL;
 }
+
+hash_table *stack_get_top(stack *stack){
+    return (hash_table*) linked_list_get(stack, 0);
+}

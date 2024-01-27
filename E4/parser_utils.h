@@ -17,4 +17,13 @@ void fail_if_invalid_operator(stack *stack, ast_node *node);
 void add_new_scope(stack *stack);
 void remove_current_scope(stack *stack);
 void add_symbol(stack *stack, symbol *symbol);
+
+#define DEBUG_PARSER
+
+#ifdef DEBUG_PARSER
+#define DEBUG_PRINT printf("File:%s : Line:%d\n", __FILE__, __LINE__);
+#else
+#define DEBUG_PRINT
+#endif
+
 #endif

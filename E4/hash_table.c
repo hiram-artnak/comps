@@ -2,15 +2,18 @@
 #include "linked_list.h"
 #include <string.h>
 #include "utils.h"
+#include <stdio.h>
 
 #define HASH_TABLE_SIZE 1051
 
-typedef struct key_valueList{
+
+
+typedef struct key_value_list{
     key_value *head;
     key_value *tail;
     int size;
     destroy_data destroy;
-} key_valueList;
+} key_value_list;
 
 key_value *key_value_create(char *key, void *value){
     key_value *kv = f_malloc(sizeof(key_value));
@@ -29,8 +32,8 @@ void key_value_destroy(key_value *kv,  destroy_data destroy){
 }
 
 
-key_valueList *key_value_list_create(destroy_data destroy){
-    key_valueList *list = f_malloc(sizeof(key_valueList));
+key_value_list *key_value_list_create(destroy_data destroy){
+    key_value_list *list = f_malloc(sizeof(key_value_list));
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
@@ -38,7 +41,7 @@ key_valueList *key_value_list_create(destroy_data destroy){
     return list;
 }
 
-void key_value_list_destroy(key_valueList *list){
+void key_value_list_destroy(key_value_list *list){
     key_value *node = list->head;
     while (node != NULL) {
         key_value *next = node->next;
@@ -48,7 +51,7 @@ void key_value_list_destroy(key_valueList *list){
     f_free(list);
 }
 
-void key_value_list_push_back(key_valueList *list, char *key, void *value){
+void key_value_list_push_back(key_value_list *list, char *key, void *value){
     key_value *kv = key_value_create(key, value);
     if (list->tail != NULL) {
         list->tail->next = kv;
@@ -60,7 +63,7 @@ void key_value_list_push_back(key_valueList *list, char *key, void *value){
     list->size++;
 }
 
-void key_value_list_remove(key_valueList *list, char *key){
+void key_value_list_remove(key_value_list *list, char *key){
     key_value *node = list->head;
     key_value *prev = NULL;
     while (node != NULL) {
@@ -83,7 +86,7 @@ void key_value_list_remove(key_valueList *list, char *key){
     }
 }
 
-void *key_value_list_get(key_valueList *list, char *key){
+void *key_value_list_get(key_value_list *list, char *key){
     key_value *node = list->head;
     while (node != NULL) {
         if (strcmp(node->key, key) == 0) {
@@ -97,28 +100,30 @@ void *key_value_list_get(key_valueList *list, char *key){
 typedef struct hash_table{
     int buckets;
     void (*destroy)(void *data);
-    key_valueList **table;
+    key_value_list **table;
 } hash_table;
 
 unsigned int hash(char *key){
-    const char *c = key;
-    unsigned int hash = 0;
+    char *c = key; 
+    unsigned int hash_n = 0;
+    int i = 0; 
     while(*c != '\0'){
-        unsigned int aux;
-        hash = (hash << 4) + (*c);
-        if((aux & 0xF0000000) != 0){
-            hash = hash ^ (aux >> 24);
-            hash = hash ^ aux;
+        unsigned int aux = 0;
+        hash_n = (hash_n << 4) + (*c);
+        if((aux & 0xF0000000) != 0){ 
+            hash_n = hash_n ^ (aux >> 24); 
+            hash_n = hash_n ^ aux; 
         }
         c++;
     }
+    return hash_n;
 }
 
 hash_table *hash_table_create(destroy_data destroy){
     hash_table *table = f_malloc(sizeof(hash_table));
     table->buckets = HASH_TABLE_SIZE;
     table->destroy = destroy;
-    table->table = f_malloc(sizeof(key_valueList *) * table->buckets);
+    table->table = f_malloc(sizeof(key_value_list *) * table->buckets);
     for (int i = 0; i < table->buckets; i++) {
         table->table[i] = key_value_list_create(destroy);
     }
@@ -133,8 +138,9 @@ void hash_table_destroy(hash_table *table){
     f_free(table);
 }
 void hash_table_insert(hash_table *table, char *key, void *value){
-    unsigned int index = hash(key) % table->buckets;
-    key_value_list_push_back(table->table[index], key, value);
+    unsigned int index = hash(key);
+    index = index % table->buckets;
+    key_value_list_push_back(table->table[index], key, value); 
 }
 
 void *hash_table_get(hash_table *table, char *key){
@@ -145,8 +151,9 @@ void hash_table_remove(hash_table *table, char *key){
     unsigned int index = hash(key) % table->buckets;
     key_value_list_remove(table->table[index], key);
 }
-
+#include <stdio.h>
 int hash_table_is_member(hash_table *table, char *key){
     unsigned int index = hash(key) % table->buckets;
     return key_value_list_get(table->table[index], key) != NULL;
 }
+

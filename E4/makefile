@@ -5,7 +5,7 @@ DEPS=lexeme.c linked_list.c ast.c utils.c hash_table.c stack.c symbol.c stack.c 
 BISON_DEPS= ast.o stack.o linked_list.o
 OBJ = main.o utils.o ast.o linked_list.o lex.yy.o parser.tab.o hash_table.o stack.o symbol.o stack.o parser_utils.o
 
-etapa3: $(OBJ)
+etapa4: $(OBJ)
 	$(CC) -o $@ $^ $(LIBS)
 
 parser.tab.o: parser.tab.c parser.tab.h

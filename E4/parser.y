@@ -106,7 +106,7 @@ program: /* empty */ {
 
 
 
-global_declaration: variable_declaration ';'
+global_declaration: variable_declaration ';' {}
     ;
 
 variable_declaration: type identifier_list {
@@ -114,11 +114,11 @@ variable_declaration: type identifier_list {
     // Add list of identifiers to the symbol table
     int size = linked_list_size($2);
     for(int i = 0; i < size; i++){
-        ast_node *cur_node = linked_list_get($2, i);
-        fail_if_declared(scope_stack, cur_node);
-        cur_node->data_type = $1;
-        symbol *sym = symbol_create($1, SYMBOL_TYPE_IDENTIFIER, cur_node->lexeme);
-        add_symbol(scope_stack, sym);
+        ast_node *cur_node = linked_list_get($2, i); 
+        fail_if_declared(scope_stack, cur_node); 
+        cur_node->data_type = $1; 
+        symbol *sym = symbol_create($1, SYMBOL_TYPE_IDENTIFIER, cur_node->lexeme); 
+        add_symbol(scope_stack, sym); 
     }
 }
     ;
@@ -270,7 +270,7 @@ primary: identifier {
     fail_if_not_variable(scope_stack, $1);
     $$ = $1;
 }
-    | literal { $$ = $1;}
+    | literal {$$ = $1;}
     | function_call { $$ = $1;}
     | '(' expression ')' { $$ = $2;}
     ;

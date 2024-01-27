@@ -87,6 +87,6 @@ void remove_current_scope(stack *stack){
 }
 
 void add_symbol(stack *stack, symbol *symbol){
-    hash_table *table = stack_get(stack, 0);
-    hash_table_insert(table, symbol->lexeme->value, symbol);
+    hash_table *table = stack_get_top(stack); 
+    hash_table_insert(table, symbol->lexeme->value, symbol); 
 }

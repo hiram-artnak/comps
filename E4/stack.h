@@ -3,6 +3,7 @@
 
 #include "linked_list.h"
 #include "ast.h"
+#include "hash_table.h"
 typedef linked_list stack;
 
 stack *stack_create(destroy_data destroy);
@@ -12,5 +13,6 @@ void stack_push(stack *stack, void *data);
 void *stack_pop(stack *stack);
 int stack_is_declared(stack *stack, char *identifier);
 void *stack_get(stack *stack, char *identifier);
+hash_table *stack_get_top(stack *stack);
 
 #endif
