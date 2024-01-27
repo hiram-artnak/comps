@@ -6,12 +6,6 @@
 
 typedef linked_list ast_node_list;
 
-typedef struct lexeme{
-    char *value;
-    int line;
-    lexeme_type type;
-} lexeme;
-
 lexeme *lexeme_create(char *value, int line, lexeme_type type){
     lexeme *l = f_malloc(sizeof(lexeme));
     // copy the string
@@ -46,14 +40,10 @@ void ast_node_type_to_string(ast_node_type type, char *out_str){
     }
 }
 
-typedef struct ast_node{
-    lexeme *value;
-    ast_node_list *children;
-    ast_node_type type;
-    type_system_type data_type;
-} ast_node;
 
-
+lexeme *ast_node_get_lexeme(ast_node *node){
+    return node->value;
+}
 
 ast_node *ast_node_create(ast_node_type type, lexeme *value, type_system_type data_type){
     ast_node *node = f_malloc(sizeof(ast_node));
@@ -211,6 +201,19 @@ void ast_node_set_type(ast_node *node, ast_node_type type){
     node->type = type;
 }
 
+char *ast_node_get_lexeme_value(ast_node *node){
+    // Returns a copy
+    char *value = f_malloc(strlen(node->value->value) + 1);
+    strcpy(value, node->value->value);
+    return value;
+}
+
+int ast_node_get_lexeme_line_no(ast_node *node){
+    return node->value->line;
+}
+ast_node_type ast_node_get_type(ast_node *node){
+    return node->type;
+}
 
 // List
 

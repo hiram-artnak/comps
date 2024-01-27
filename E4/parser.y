@@ -13,12 +13,14 @@ ast_node* current_function = NULL;
 %}
 
 %code requires{
+    
     #include "utils.h"
     #include "ast.h"
     #include "stack.h"
     #include "symbol.h"
     #include "hash_table.h"
     #include "linked_list.h"
+    #include "parse_utils.h"
     #include <string.h>
     #include <stdio.h>
 }
@@ -27,6 +29,7 @@ ast_node* current_function = NULL;
     ast_node *node;
     linked_list *list;
     lexeme *lex;
+    type_system_type data_type;
 }
 
 %token TK_PR_INT
@@ -79,6 +82,8 @@ ast_node* current_function = NULL;
 %type<node> identifier
 
 %type<node> program
+
+%type<data_type> type
 %%
 
 program: /* empty */ { 
@@ -102,17 +107,30 @@ program: /* empty */ {
 global_declaration: variable_declaration ';'
     ;
 
-variable_declaration: type identifier_list {$$ = ast_node_create(AST_NODE_TYPE_EMPTY, NULL, TYPE_SYSTEM_TYPE_FAKE);}
+variable_declaration: type identifier_list {
+    $$ = ast_node_create(AST_NODE_TYPE_EMPTY, NULL, $1);
+    // Add list of identifiers to the symbol table
+    int size = linked_list_size($2);
+    for(int i = 0; i < size; i++){
+
+        ast_node *cur_node = linked_list_get($2, i);
+        fail_if_declared(scope_stack, cur_node);
+        symbol *sym = symbol_create($1, SYMBOL_TYPE_IDENTIFIER, cur_node->lexeme);
+    }
+}
     ;
 
 type: TK_PR_INT {
     stack_create_if_null(&scope_stack, (destroy_data)hash_table_destroy);
+    $$ = TYPE_SYSTEM_TYPE_INT;
     }
     | TK_PR_FLOAT{
     stack_create_if_null(&scope_stack, (destroy_data)hash_table_destroy);
+    $$ = TYPE_SYSTEM_TYPE_FLOAT;
     }
     | TK_PR_BOOL{
     stack_create_if_null(&scope_stack, (destroy_data)hash_table_destroy);
+    $$ = TYPE_SYSTEM_TYPE_BOOL;
     }
     ;
 
@@ -206,7 +224,8 @@ else_part: /* empty */ { $$ = NULL;}
          }
          ;
 
-while_command: TK_PR_WHILE '(' expression ')' command_block{
+while_command: TK_PR_WHILE '(' expression ')' command_block
+{
                 ast_node *node = ast_node_create(AST_NODE_TYPE_WHILE, NULL, TYPE_SYSTEM_TYPE_FAKE);
                 ast_node_add_child(node, $3);
                 ast_node_add_child(node, deconstruct_list($5));
@@ -214,117 +233,65 @@ while_command: TK_PR_WHILE '(' expression ')' command_block{
 }
              ;
 
-literal: TK_LIT_FALSE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
-    | TK_LIT_TRUE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
-    | TK_LIT_INT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
-    | TK_LIT_FLOAT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
+literal: TK_LIT_FALSE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_BOOL); $$ = node;}
+    | TK_LIT_TRUE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_BOOL); $$ = node;}
+    | TK_LIT_INT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_INT); $$ = node;}
+    | TK_LIT_FLOAT { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, $1, TYPE_SYSTEM_TYPE_FLOAT); $$ = node;}
     ;
 
-primary: identifier { $$ = $1;}
+primary: identifier {
+    // Check if identifier is declared
+    if(!stack_is_declared(scope_stack, $1)){
+        printf("Error: Variable %s in line %d not declared.\n", $1, $1->value->line);
+        exit(11);
+    }
+    // Check if identifier is not a function
+    symbol *sym = stack_get(scope_stack, $1->value->value);
+    if(sym->type == SYMBOL_TYPE_FUNCTION){
+        printf("Error: Variable %s in line %d is a function.\n", $1, $1->value->line);
+        exit(11);
+    }
+    $$ = $1;
+}
     | literal { $$ = $1;}
     | function_call { $$ = $1;}
     | '(' expression ')' { $$ = $2;}
     ;
 
 unary: primary { $$ = $1; }
-    | '!' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_NEGATION, NULL, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
-    | '-' primary { ast_node *node = ast_node_create(AST_NODE_TYPE_NUMERICAL_NEGATION, NULL, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
+    | '!' primary { $$ make_unary_expression(AST_NODE_TYPE_LOGICAL_NEGATION, $2, scope_stack);}
+    | '-' primary { $$ make_unary_expression(AST_NODE_TYPE_NUMERICAL_NEGATION, $2, scope_stack);}
     ;
 
 factor: unary { $$ = $1; }
-    | factor '*' unary { 
-        ast_node *node = ast_node_create(AST_NODE_TYPE_MULTIPLICATION, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-        }
-    | factor '/' unary {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_DIVISION, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
-    | factor '%' unary{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_MODULO, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
+    | factor '*' unary { $$ = make_binary_expression(AST_NODE_TYPE_MULTIPLICATION, $1, $3, scope_stack);}
+    | factor '/' unary { $$ = make_binary_expression(AST_NODE_TYPE_DIVISION, $1, $3, scope_stack);}
+    | factor '%' unary { $$ = make_binary_expression(AST_NODE_TYPE_MODULO, $1, $3, scope_stack);}
     ;
 
 term: factor { $$ = $1; }
-    | term '+' factor {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_ADDITION, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
-    | term '-' factor{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_SUBTRACTION, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
+    | term '+' factor {$$ = make_binary_expression(AST_NODE_TYPE_ADDITION, $1, $3, scope_stack);}
+    | term '-' factor {$$ = make_binary_expression(AST_NODE_TYPE_SUBTRACTION, $1, $3, scope_stack);}
     ;
 
 order: term { $$ = $1; }
-    | order '<' term{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_LESS_THAN, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
-    | order '>' term{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_GREATER_THAN, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
-    | order TK_OC_GE term{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_GREATER_EQUAL, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
-    | order TK_OC_LE term{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_LESS_EQUAL, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
+    | order '<' term { $$ = make_binary_expression(AST_NODE_TYPE_LESS_THAN, $1, $3, scope_stack);}
+    | order '>' term { $$ = make_binary_expression(AST_NODE_TYPE_GREATER_THAN, $1, $3, scope_stack);}
+    | order TK_OC_GE term{ $$ = make_binary_expression(AST_NODE_TYPE_GREATER_EQUAL, $1, $3, scope_stack);}
+    | order TK_OC_LE term{ $$ = make_binary_expression(AST_NODE_TYPE_LESS_EQUAL, $1, $3, scope_stack);}
     ;
 
 identity: order { $$ = $1; }
-    | identity TK_OC_EQ order{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_EQUAL, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
-    | identity TK_OC_NE order{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_NOT_EQUAL, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
+    | identity TK_OC_EQ order{ $$ = make_binary_expression(AST_NODE_TYPE_EQUAL, $1, $3, scope_stack);}
+    | identity TK_OC_NE order{ $$ = make_binary_expression(AST_NODE_TYPE_NOT_EQUAL, $1, $3, scope_stack);}
     ;
 
 and_expr: identity { $$ = $1; }
-    | and_expr TK_OC_AND identity{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_AND, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
+    | and_expr TK_OC_AND identity{ $$ = make_binary_expression(AST_NODE_TYPE_LOGICAL_AND, $1, $3, scope_stack);}
     ;
 
 expression: and_expr { $$ = $1; }
-    | expression TK_OC_OR and_expr{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_LOGICAL_OR, NULL, TYPE_SYSTEM_TYPE_FAKE);
-        ast_node_add_child(node, $1);
-        ast_node_add_child(node, $3);
-        $$ = node;
-    }
+    | expression TK_OC_OR and_expr{ $$ = make_binary_expression(AST_NODE_TYPE_LOGICAL_OR, $1, $3, scope_stack);}
     ;
 
 %%

@@ -2,7 +2,7 @@
 #define SYMBOL_H
 
 #include "ast.h"
-
+#include "hash_table.h"
 typedef enum symbol_type{
     SYMBOL_TYPE_LITERAL,
     SYMBOL_TYPE_IDENTIFIER,
@@ -10,14 +10,16 @@ typedef enum symbol_type{
 }symbol_type;
 
 typedef struct symbol{
-    unsigned int line;
-    symbol_type symbol_type;
     type_system_type data_type;
+    symbol_type sym_type;
     lexeme *lexeme;
 }symbol;
 
-symbol *symbol_create(unsigned int line, symbol_type symbol_type, type_system_type data_type, lexeme *lexeme);
+symbol *symbol_create(type_system_type data_type, symbol_type sym_type, lexeme *lexeme);
 void symbol_destroy(symbol *symbol);
 type_system_type type_infer(symbol *symbol_a, symbol *symbol_b);
+
+hash_table *symbol_table_create();
+void destroy_symbol_key_value(void *data);
 
 #endif

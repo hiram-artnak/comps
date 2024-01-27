@@ -4,7 +4,11 @@
 #include "linked_list.h"
 
 typedef struct hash_table hash_table;
-typedef struct key_value key_value;
+typedef struct key_value{
+    char *key;
+    void *value;
+    key_value *next;
+} key_value;
 
 void key_value_destroy(key_value *kv, destroy_data destroy); // Used in the destroy function of the hash table
 

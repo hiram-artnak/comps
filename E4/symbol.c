@@ -1,10 +1,10 @@
 #include "symbol.h"
 #include "utils.h"
-symbol *symbol_create(unsigned int line, symbol_type symbol_type, type_system_type data_type, lexeme *lexeme){
+
+symbol *symbol_create(type_system_type data_type, symbol_type sym_type, lexeme *lexeme){
     symbol *s = f_malloc(sizeof(symbol));
-    s->line = line;
-    s->symbol_type = symbol_type;
     s->data_type = data_type;
+    s->sym_type = sym_type;
     s->lexeme = lexeme;
     return s;
 
@@ -21,4 +21,14 @@ type_system_type type_infer(symbol *symbol_a, symbol *symbol_b){
         return TYPE_SYSTEM_TYPE_INT;
     }
     return TYPE_SYSTEM_TYPE_BOOL;
+}
+
+hash_table *symbol_table_create(){
+    return hash_table_create(destroy_symbol_key_value);
+}
+void destroy_symbol_key_value(void *data){
+    key_value *kv = (key_value *)data;
+    symbol_destroy((symbol *)kv->value);
+    f_free(kv->key);
+    f_free(kv);
 }

@@ -5,12 +5,6 @@
 
 #define HASH_TABLE_SIZE 1051
 
-typedef struct key_value{
-    char *key;
-    void *value;
-    key_value *next;
-} key_value;
-
 typedef struct key_valueList{
     key_value *head;
     key_value *tail;

@@ -10,17 +10,21 @@ typedef enum type_system_type{
     TYPE_SYSTEM_TYPE_FAKE
 }type_system_type;  
 
-typedef struct lexeme lexeme;
-
 typedef enum lexeme_type{
     LEXEME_TYPE_IDENTIFIER,
     LEXEME_TYPE_LITERAL
 }lexeme_type;
 
+typedef struct lexeme{
+    char *value;
+    int line;
+    lexeme_type type;
+} lexeme;
+
+
 lexeme *lexeme_create(char *value, int line, lexeme_type type);
 void lexeme_destroy(lexeme *l);
 
-typedef struct ast_node ast_node;
 typedef enum ast_node_type{
     // EXPRESSIONS
     AST_NODE_TYPE_IDENTIFIER,
@@ -62,6 +66,14 @@ typedef enum ast_node_type{
 // Special list for ast_node
 typedef linked_list ast_node_list;
 
+typedef struct ast_node{
+    lexeme *value;
+    ast_node_list *children;
+    ast_node_type type;
+    type_system_type data_type;
+} ast_node;
+
+
 ast_node *ast_node_create(ast_node_type type, lexeme *value, type_system_type data_type);
 void ast_node_destroy(ast_node *node);
 void ast_node_add_child(ast_node *node, ast_node *child);
@@ -70,6 +82,9 @@ void ast_node_print_tree(ast_node *node);
 void ast_node_set_children(ast_node *node, ast_node_list *children);
 ast_node *deconstruct_list(ast_node_list *list);
 void ast_node_set_type(ast_node *node, ast_node_type type);
+char *ast_node_get_lexeme_value(ast_node *node);
+lexeme *ast_node_get_lexeme(ast_node *node);
+int ast_node_get_lexeme_line_no(ast_node *node);
 
 
 ast_node_list *ast_node_list_create();
