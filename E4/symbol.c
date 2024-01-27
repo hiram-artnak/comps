@@ -26,9 +26,3 @@ type_system_type type_infer(symbol *symbol_a, symbol *symbol_b){
 hash_table *symbol_table_create(){
     return hash_table_create(destroy_symbol_key_value);
 }
-void destroy_symbol_key_value(void *data){
-    key_value *kv = (key_value *)data;
-    symbol_destroy((symbol *)kv->value);
-    f_free(kv->key);
-    f_free(kv);
-}

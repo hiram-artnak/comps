@@ -20,7 +20,7 @@ ast_node* current_function = NULL;
     #include "symbol.h"
     #include "hash_table.h"
     #include "linked_list.h"
-    #include "parse_utils.h"
+    #include "parser_utils.h"
     #include <string.h>
     #include <stdio.h>
 }
@@ -84,6 +84,8 @@ ast_node* current_function = NULL;
 %type<node> program
 
 %type<data_type> type
+%type<list> identifier_list
+
 %%
 
 program: /* empty */ { 
@@ -112,10 +114,11 @@ variable_declaration: type identifier_list {
     // Add list of identifiers to the symbol table
     int size = linked_list_size($2);
     for(int i = 0; i < size; i++){
-
         ast_node *cur_node = linked_list_get($2, i);
         fail_if_declared(scope_stack, cur_node);
+        cur_node->data_type = $1;
         symbol *sym = symbol_create($1, SYMBOL_TYPE_IDENTIFIER, cur_node->lexeme);
+        add_symbol(scope_stack, sym);
     }
 }
     ;
@@ -137,8 +140,8 @@ type: TK_PR_INT {
 identifier: TK_IDENTIFICADOR { ast_node *node = ast_node_create(AST_NODE_TYPE_IDENTIFIER, $1, TYPE_SYSTEM_TYPE_FAKE); $$ = node;}
     ;
 
-identifier_list: identifier
-    | identifier_list ',' identifier
+identifier_list: identifier {$$ = ast_node_list_create(); ast_node_list_push_back($$, $1);}
+    | identifier_list ',' identifier {ast_node_list_push_back($1, $3); $$ = $1;}
     ;
 
 function: function_header command_block {
@@ -148,7 +151,12 @@ function: function_header command_block {
 }
     ;
 
-function_header: parameter_list TK_OC_GE type '!' identifier {$$=$5; ast_node_set_type($$, AST_NODE_TYPE_FUNCTION);}
+function_header: parameter_list TK_OC_GE type '!' identifier {
+    fail_if_declared(scope_stack, $5);
+    symbol *sym = symbol_create($3, SYMBOL_TYPE_FUNCTION, $5->lexeme);
+    add_symbol(scope_stack, sym);
+    $$=$5; ast_node_set_type($$, AST_NODE_TYPE_FUNCTION);
+    }
     ;
 
 parameter_list: '('parameters')'{ stack_create_if_null(&scope_stack, (destroy_data)hash_table_destroy);}
@@ -175,11 +183,22 @@ command: command_block ';' { $$ = deconstruct_list($1);}
        | while_command ';' { $$ = $1;}
        ;
 
-command_block: '{' commands '}' { $$ = $2;}
+
+open_block: '{' { add_new_scope(scope_stack); }
+    ;
+
+close_block: '}' { remove_current_scope(scope_stack); }
+
+command_block: open_block commands close_block {
+    $$ = $2;
+    }
     ;
 
 attribution_command: identifier '=' expression {
-        ast_node *node = ast_node_create(AST_NODE_TYPE_ATTRIBUTION, NULL, TYPE_SYSTEM_TYPE_FAKE);
+        fail_if_not_declared(scope_stack, $1);
+        fail_if_not_variable(scope_stack, $1);
+        symbol *sym = stack_get(scope_stack, $1->lexeme->value);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_ATTRIBUTION, NULL, sym->data_type);
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
@@ -187,15 +206,19 @@ attribution_command: identifier '=' expression {
     ;
 
 return_command: TK_PR_RETURN expression{
-        ast_node *node = ast_node_create(AST_NODE_TYPE_RETURN, NULL, TYPE_SYSTEM_TYPE_FAKE);
+        ast_node *node = ast_node_create(AST_NODE_TYPE_RETURN, NULL, $2->data_type);
         ast_node_add_child(node, $2);
         $$ = node;
 }
     ;
 
 function_call: identifier '(' arguments ')'{
+        fail_if_not_declared(scope_stack, $1);
+        fail_if_not_function(scope_stack, $1);
         ast_node *node = $1;
+        symbol *sym = stack_get(scope_stack, $1->lexeme->value);
         ast_node_set_type(node, AST_NODE_TYPE_FUNCTION_CALL);
+        ast_node_set_data_type(node, sym->data_type);
         ast_node_add_child(node, deconstruct_list($3));
         $$ = node;
 }
@@ -207,10 +230,11 @@ arguments: /* empty */ { $$ = ast_node_list_create();}
     ;
 
 if_command: TK_PR_IF '(' expression ')' command_block else_part{
-            ast_node *node = ast_node_create(AST_NODE_TYPE_IF, NULL, TYPE_SYSTEM_TYPE_FAKE);
+            ast_node *node = ast_node_create(AST_NODE_TYPE_IF, NULL, $3->data_type);
             ast_node_add_child(node, $3);
             ast_node_add_child(node, deconstruct_list($5));
             if($6 != NULL)
+                $6->data_type = $3->data_type;
                 ast_node_add_child(node, $6);
             $$ = node;
 }
@@ -226,7 +250,7 @@ else_part: /* empty */ { $$ = NULL;}
 
 while_command: TK_PR_WHILE '(' expression ')' command_block
 {
-                ast_node *node = ast_node_create(AST_NODE_TYPE_WHILE, NULL, TYPE_SYSTEM_TYPE_FAKE);
+                ast_node *node = ast_node_create(AST_NODE_TYPE_WHILE, NULL, $3->data_type);
                 ast_node_add_child(node, $3);
                 ast_node_add_child(node, deconstruct_list($5));
                 $$ = node;
@@ -241,16 +265,9 @@ literal: TK_LIT_FALSE { ast_node *node = ast_node_create(AST_NODE_TYPE_LITERAL, 
 
 primary: identifier {
     // Check if identifier is declared
-    if(!stack_is_declared(scope_stack, $1)){
-        printf("Error: Variable %s in line %d not declared.\n", $1, $1->value->line);
-        exit(11);
-    }
+    fail_if_not_declared(scope_stack, $1);
     // Check if identifier is not a function
-    symbol *sym = stack_get(scope_stack, $1->value->value);
-    if(sym->type == SYMBOL_TYPE_FUNCTION){
-        printf("Error: Variable %s in line %d is a function.\n", $1, $1->value->line);
-        exit(11);
-    }
+    fail_if_not_variable(scope_stack, $1);
     $$ = $1;
 }
     | literal { $$ = $1;}
@@ -259,8 +276,8 @@ primary: identifier {
     ;
 
 unary: primary { $$ = $1; }
-    | '!' primary { $$ make_unary_expression(AST_NODE_TYPE_LOGICAL_NEGATION, $2, scope_stack);}
-    | '-' primary { $$ make_unary_expression(AST_NODE_TYPE_NUMERICAL_NEGATION, $2, scope_stack);}
+    | '!' primary { $$ =  make_unary_expression(AST_NODE_TYPE_LOGICAL_NEGATION, $2, scope_stack);}
+    | '-' primary { $$ = make_unary_expression(AST_NODE_TYPE_NUMERICAL_NEGATION, $2, scope_stack);}
     ;
 
 factor: unary { $$ = $1; }

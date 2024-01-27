@@ -7,10 +7,13 @@ typedef struct hash_table hash_table;
 typedef struct key_value{
     char *key;
     void *value;
-    key_value *next;
+    struct key_value *next;
 } key_value;
 
+
 void key_value_destroy(key_value *kv, destroy_data destroy); // Used in the destroy function of the hash table
+key_value *key_value_create(char *key, void *value);
+
 
 typedef void (*destroy_data)(void *data);
 
@@ -20,6 +23,7 @@ void hash_table_insert(hash_table *table, char *key, void *value);
 void *hash_table_get(hash_table *table, char *key);
 void hash_table_remove(hash_table *table, char *key);
 int hash_table_is_member(hash_table *table, char *key);
+
 
 
 #endif

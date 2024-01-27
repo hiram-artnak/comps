@@ -67,7 +67,7 @@ typedef enum ast_node_type{
 typedef linked_list ast_node_list;
 
 typedef struct ast_node{
-    lexeme *value;
+    lexeme *lexeme;
     ast_node_list *children;
     ast_node_type type;
     type_system_type data_type;
@@ -82,6 +82,7 @@ void ast_node_print_tree(ast_node *node);
 void ast_node_set_children(ast_node *node, ast_node_list *children);
 ast_node *deconstruct_list(ast_node_list *list);
 void ast_node_set_type(ast_node *node, ast_node_type type);
+void ast_node_set_data_type(ast_node *node, type_system_type data_type);
 char *ast_node_get_lexeme_value(ast_node *node);
 lexeme *ast_node_get_lexeme(ast_node *node);
 int ast_node_get_lexeme_line_no(ast_node *node);

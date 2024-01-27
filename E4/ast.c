@@ -42,19 +42,19 @@ void ast_node_type_to_string(ast_node_type type, char *out_str){
 
 
 lexeme *ast_node_get_lexeme(ast_node *node){
-    return node->value;
+    return node->lexeme;
 }
 
 ast_node *ast_node_create(ast_node_type type, lexeme *value, type_system_type data_type){
     ast_node *node = f_malloc(sizeof(ast_node));
-    node->value = value;
+    node->lexeme = value;
     node->children = ast_node_list_create();
     node->type = type;
     node->data_type = data_type;
     return node;
 }
 void ast_node_destroy(ast_node *node){
-    lexeme_destroy(node->value);
+    lexeme_destroy(node->lexeme);
     ast_node_list_destroy(node->children);
     f_free(node);
 }
@@ -80,10 +80,10 @@ void ast_node_print(ast_node *node){
     char out_str[100];
     switch (node->type){
         case AST_NODE_TYPE_IDENTIFIER:
-            strcpy(out_str, node->value->value);
+            strcpy(out_str, node->lexeme->value);
             break;
         case AST_NODE_TYPE_LITERAL:
-            strcpy(out_str, node->value->value);
+            strcpy(out_str, node->lexeme->value);
             break;
         case AST_NODE_TYPE_LOGICAL_NEGATION:
             strcpy(out_str, "!");
@@ -143,10 +143,10 @@ void ast_node_print(ast_node *node){
             strcpy(out_str, "return");
             break;
         case AST_NODE_TYPE_FUNCTION_CALL:
-            sprintf(out_str, "call %s", node->value->value);
+            sprintf(out_str, "call %s", node->lexeme->value);
             break;
         case AST_NODE_TYPE_FUNCTION:
-            sprintf(out_str, "%s", node->value->value);
+            sprintf(out_str, "%s", node->lexeme->value);
             break;
         default:
             return;
@@ -203,13 +203,13 @@ void ast_node_set_type(ast_node *node, ast_node_type type){
 
 char *ast_node_get_lexeme_value(ast_node *node){
     // Returns a copy
-    char *value = f_malloc(strlen(node->value->value) + 1);
-    strcpy(value, node->value->value);
+    char *value = f_malloc(strlen(node->lexeme->value) + 1);
+    strcpy(value, node->lexeme->value);
     return value;
 }
 
 int ast_node_get_lexeme_line_no(ast_node *node){
-    return node->value->line;
+    return node->lexeme->line;
 }
 ast_node_type ast_node_get_type(ast_node *node){
     return node->type;
@@ -267,4 +267,8 @@ void ast_node_list_print(ast_node_list *list){
 
 void exporta(void *arvore){
   ast_node_print_tree(arvore);
+}
+
+void ast_node_set_data_type(ast_node *node, type_system_type data_type){
+    node->data_type = data_type;
 }

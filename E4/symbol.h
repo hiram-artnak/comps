@@ -19,7 +19,10 @@ symbol *symbol_create(type_system_type data_type, symbol_type sym_type, lexeme *
 void symbol_destroy(symbol *symbol);
 type_system_type type_infer(symbol *symbol_a, symbol *symbol_b);
 
-hash_table *symbol_table_create();
+
 void destroy_symbol_key_value(void *data);
+
+hash_table *symbol_table_create();
+
 
 #endif
