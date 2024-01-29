@@ -112,3 +112,10 @@ void add_symbol_to_current_scope(stack *s, symbol *symbol){
     hash_table *table = stack_peek(s);
     hash_table_insert(table, symbol_get_value(symbol), symbol);
 }
+
+void add_child_from_list(ast_node *node, ast_node_list *list){
+    ast_node *child = unwind_ast_node_list(list);
+    if(child != NULL){
+        ast_node_add_child(node, child);
+    }
+}

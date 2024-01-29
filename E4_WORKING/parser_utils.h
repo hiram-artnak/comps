@@ -22,4 +22,5 @@ void fail_if_invalid_operator(stack *s, ast_node *node);
 void add_new_scope(stack *s);
 void remove_current_scope(stack *s);
 void add_symbol_to_current_scope(stack *s, symbol *symbol);
+void add_child_from_list(ast_node *node, ast_node_list *list);
 #endif
