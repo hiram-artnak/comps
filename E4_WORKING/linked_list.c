@@ -1,5 +1,6 @@
 #include "linked_list.h"
 #include "utils.h"
+#include <stdio.h>
 
 typedef struct linked_list_node {
     void *value;
@@ -59,6 +60,14 @@ int linked_list_empty(linked_list *list){
 }
 
 void linked_list_push_front(linked_list *list, void *value){
+    if(list == NULL){
+        printf("Tried to push_front in NULL list\n");
+        exit(1);
+    }
+    if(value == NULL){
+        printf("Tried to push_front NULL value\n");
+        exit(1);
+    }
     linked_list_node *node = linked_list_node_create(value);
     node->next = list->head;
     list->head = node;
@@ -69,6 +78,14 @@ void linked_list_push_front(linked_list *list, void *value){
 }
 
 void linked_list_push_back(linked_list *list, void *value){
+    if(list == NULL){
+        printf("Tried to push_back in NULL list\n");
+        exit(1);
+    }
+    if(value == NULL){
+        printf("Tried to push_back NULL value\n");
+        exit(1);
+    }
     linked_list_node *node = linked_list_node_create(value);
     if (list->tail != NULL) {
         list->tail->next = node;
@@ -81,7 +98,8 @@ void linked_list_push_back(linked_list *list, void *value){
 }
 void *linked_list_pop_front(linked_list *list){
     if (list->head == NULL) {
-        return NULL;
+        printf("Tried to pop_front of empty list\n");
+        exit(1);
     }
     linked_list_node *node = list->head;
     void *value = node->value;
@@ -95,7 +113,8 @@ void *linked_list_pop_front(linked_list *list){
 }
 void *linked_list_pop_back(linked_list *list){
     if (list->tail == NULL) {
-        return NULL;
+        printf("Tried to pop_back of empty list\n");
+        exit(1);
     }
     linked_list_node *node = list->tail;
     void *value = node->value;
@@ -117,13 +136,15 @@ void *linked_list_pop_back(linked_list *list){
 
 void *linked_list_front(linked_list *list){
     if (list->head == NULL) {
-        return NULL;
+        printf("Tried to get front of empty list\n");
+        exit(1);
     }
     return list->head->value;
 }
 void *linked_list_back(linked_list *list){
     if (list->tail == NULL) {
-        return NULL;
+        printf("Tried to get back of empty list\n");
+        exit(1);
     }
     return list->tail->value;
 }
@@ -173,7 +194,8 @@ void linked_list_delete(linked_list *list, int index){
 
 void *linked_list_get(linked_list *list, int index){
     if (index < 0 || index >= list->size) {
-        return NULL;
+        printf("Tried to get element at index %d of list of size %d\n", index, list->size);
+        exit(1);
     }
     linked_list_node *node = list->head;
     for (int i = 0; i < index; i++) {

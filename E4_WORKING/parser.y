@@ -140,7 +140,10 @@ type: TK_PR_INT {
 
 function: function_header function_body {
         ast_node *node = $1; 
-        ast_node_add_child(node, unwind_ast_node_list($2)); 
+        ast_node *from_list = unwind_ast_node_list($2);
+        if(from_list != NULL){
+            ast_node_add_child(node, from_list);
+        }
         $$ = node; 
 }
     ;
@@ -187,14 +190,21 @@ commands: /* empty */ { $$ = ast_node_list_create();}
     | commands command {ast_node_list_push_back($1, $2); $$ = $1;}
     ;
 
-command: command_block ';' { $$ = unwind_ast_node_list($1);}
-       | variable_declaration ';' { $$ = $1;}
-       | attribution_command ';' { $$ = $1;}
-       | function_call ';' { $$ = $1;}
-       | return_command ';' { $$ = $1;}
-       | if_command ';' { $$ = $1;}
-       | while_command ';' { $$ = $1;}
-       ;
+command: command_block ';' {
+    ast_node *from_list = unwind_ast_node_list($1);
+    if(from_list != NULL){
+        $$ = from_list;
+    } else {
+        $$ = NULL;
+    }
+}
+    | variable_declaration ';' { $$ = $1;}
+    | attribution_command ';' { $$ = $1;}
+    | function_call ';' { $$ = $1;}
+    | return_command ';' { $$ = $1;}
+    | if_command ';' { $$ = $1;}
+    | while_command ';' { $$ = $1;}
+    ;
 
 open_block: '{' {add_new_scope(scope_stack);}
     ;
@@ -210,6 +220,9 @@ attribution_command: identifier '=' expression {
         fail_if_not_declared(scope_stack, $1);
         fail_if_not_variable(scope_stack, $1);
         symbol *sym = get_symbol_globally(scope_stack, ast_node_get_lexeme_value($1));
+        
+        if(sym == NULL){printf("Unexpected error: symbol not found\n"); exit(1);}
+        
         ast_node *node = ast_node_create(AST_NODE_TYPE_ATTRIBUTION, NULL, symbol_get_data_type(sym));
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
@@ -240,23 +253,35 @@ function_call: identifier '(' arguments ')'{
     fail_if_not_function(scope_stack, $1);
     ast_node *node = $1;
     symbol *sym = get_symbol_globally(scope_stack, ast_node_get_lexeme_value($1));
+
+    if(sym == NULL){printf("Unexpected error: symbol not found\n"); exit(1);}
+
     ast_node_set_node_type(node, AST_NODE_TYPE_FUNCTION_CALL);
     ast_node_set_data_type(node, symbol_get_data_type(sym));
-    ast_node_add_child(node, unwind_ast_node_list($3));
+    ast_node *from_list = unwind_ast_node_list($3);
+    if(from_list != NULL){
+        ast_node_add_child(node, from_list);
+    }
     $$ = node;
 };
 
 while_command: TK_PR_WHILE '(' expression ')' command_block{
     ast_node *node = ast_node_create(AST_NODE_TYPE_WHILE, NULL, ast_node_get_data_type($3));
     ast_node_add_child(node, $3);
-    ast_node_add_child(node, unwind_ast_node_list($5));
+    ast_node *from_list = unwind_ast_node_list($5);
+    if(from_list != NULL){
+        ast_node_add_child(node, from_list);
+    }
     $$ = node;
 };
 
 if_command: TK_PR_IF '(' expression ')' command_block else_part{
     ast_node *node = ast_node_create(AST_NODE_TYPE_IF, NULL, ast_node_get_data_type($3));
     ast_node_add_child(node, $3);
-    ast_node_add_child(node, unwind_ast_node_list($5));
+    ast_node *from_list = unwind_ast_node_list($5);
+    if(from_list != NULL){
+        ast_node_add_child(node, from_list);
+    }
     if($6 != NULL)
         ast_node_set_data_type($6, ast_node_get_data_type($3));
         ast_node_add_child(node, $6);
@@ -266,7 +291,10 @@ if_command: TK_PR_IF '(' expression ')' command_block else_part{
 else_part: /* empty */ { $$ = NULL;}
     | TK_PR_ELSE command_block {
     ast_node *node = ast_node_create(AST_NODE_TYPE_ELSE, NULL, TYPE_SYSTEM_TYPE_FAKE);
-    ast_node_add_child(node, unwind_ast_node_list($2));
+    ast_node *from_list = unwind_ast_node_list($2);
+    if(from_list != NULL){
+        ast_node_add_child(node, from_list);
+    }
     $$ = node;
 };
 
