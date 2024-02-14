@@ -307,6 +307,16 @@ primary: identifier {
     // Check if identifier is not a function
     fail_if_not_variable(scope_stack, $1);
     $$ = $1;
+
+    symbol *sym = get_symbol_globally(scope_stack, ast_node_get_lexeme_value($1));
+    if(sym == NULL){printf("Unexpected error: symbol not found\n"); exit(1);} // Fail if symbol is not found
+    ast_node_set_data_type($$, symbol_get_data_type(sym));
+    char *temporary = iloc_make_temp();
+    ast_node_set_temporary($$, temporary);
+    iloc_instr* load_into_temp = iloc_loadAI("rfp", symbol_get_location(sym), temporary, NULL);
+    ast_node_add_code($$, load_into_temp);
+
+
     }
     | literal {$$ = $1;}
     | function_call { $$ = $1;}

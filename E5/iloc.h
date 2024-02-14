@@ -9,6 +9,7 @@ typedef enum ILOC_OP{
     ILOC_MULT,
     ILOC_DIV,
     ILOC_LOAD,
+    ILOC_LOADAI,
     ILOC_STORE,
     ILOC_I2I,
     ILOC_C2C,
@@ -30,7 +31,7 @@ typedef enum ILOC_OP{
 
 typedef struct iloc_instr iloc_instr;
 
-iloc_instr* iloc_instr_create(ILOC_OP op, char* label, char* src1, char* src2, char* dst);
+iloc_instr* iloc_instr_create(ILOC_OP op, char* label, char* src1, char* src2, char* dst, int displacement);
 void iloc_instr_destroy(iloc_instr* instr);
 
 
@@ -40,7 +41,7 @@ char* iloc_instr_get_src1(iloc_instr* instr);
 char* iloc_instr_get_src2(iloc_instr* instr);
 char* iloc_instr_get_dst(iloc_instr* instr);
 char* iloc_instr_get_label(iloc_instr* instr);
-
+int iloc_instr_get_displacement(iloc_instr* instr);
 char* iloc_make_label();
 char* iloc_make_temp();
 
@@ -57,5 +58,7 @@ iloc_instr* iloc_instr_list_get(iloc_instr_list* list, int index);
 int iloc_instr_list_size(iloc_instr_list* list);
 
 
+// Helper build functions
+iloc_instr* iloc_loadAI(char* src, int offset, char* dst, char* label);
 
 #endif

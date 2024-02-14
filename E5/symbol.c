@@ -25,6 +25,11 @@ void symbol_destroy(symbol *symbol){
 int symbol_get_line(symbol *symbol){
     return lexeme_get_line(symbol->lexeme);
 }
+
+int symbol_get_location(symbol *symbol){
+    return symbol->location;
+}
+
 char *symbol_get_value(symbol *symbol){
     return lexeme_get_value(symbol->lexeme);
 }

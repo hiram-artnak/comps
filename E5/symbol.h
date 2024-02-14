@@ -14,6 +14,7 @@ typedef struct symbol symbol;
 symbol *symbol_create(type_system_type data_type, symbol_type sym_type, lexeme *lexeme, int location);
 void symbol_destroy(symbol *symbol);
 int symbol_get_line(symbol *symbol);
+int symbol_get_location(symbol *symbol);
 char *symbol_get_value(symbol *symbol);
 symbol_type symbol_get_type(symbol *symbol);
 type_system_type symbol_get_data_type(symbol *symbol);

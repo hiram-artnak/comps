@@ -10,20 +10,38 @@ typedef struct iloc_instr{
     char *src1;
     char *src2;
     char *dst;
+    int displacement;
 }iloc_instr;
 
 // Strings are copied to avoid memory leaks
-iloc_instr* iloc_instr_create(ILOC_OP op, char* label, char* src1, char* src2, char* dst){
+iloc_instr* iloc_instr_create(ILOC_OP op, char* label, char* src1, char* src2, char* dst, int displacement){
     iloc_instr* instr = f_malloc(sizeof(iloc_instr));
     instr->op = op;
-    instr->label = f_malloc(strlen(label) + 1);
-    strcpy(instr->label, label);
-    instr->src1 = f_malloc(strlen(src1) + 1);
-    strcpy(instr->src1, src1);
-    instr->src2 = f_malloc(strlen(src2) + 1);
-    strcpy(instr->src2, src2);
-    instr->dst = f_malloc(strlen(dst) + 1);
-    strcpy(instr->dst, dst);
+    if (label != NULL){
+        instr->label = f_malloc(strlen(label) + 1);
+        strcpy(instr->label, label);
+    } else {
+        instr->label = NULL;
+    }
+    if (src1 != NULL){
+        instr->src1 = f_malloc(strlen(src1) + 1);
+        strcpy(instr->src1, src1);
+    } else {
+        instr->src1 = NULL;
+    }
+    if (src2 != NULL){
+        instr->src2 = f_malloc(strlen(src2) + 1);
+        strcpy(instr->src2, src2);
+    } else {
+        instr->src2 = NULL;
+    }
+    if (dst != NULL){
+        instr->dst = f_malloc(strlen(dst) + 1);
+        strcpy(instr->dst, dst);
+    } else {
+        instr->dst = NULL;
+    }
+    instr->displacement = displacement;
     return instr;
 }
 
@@ -55,7 +73,9 @@ char* iloc_instr_get_label(iloc_instr* instr){
     return instr->label;
 }
 
-
+int iloc_instr_get_displacement(iloc_instr* instr){
+    return instr->displacement;
+}
 
 iloc_instr_list* iloc_instr_list_create(){
     return linked_list_create((destroy_data)iloc_instr_destroy);
@@ -103,3 +123,7 @@ char* iloc_make_temp(){
     return temp;
 }
 
+
+iloc_instr* iloc_loadAI(char* src, int offset, char* dst, char* label){
+    return iloc_instr_create(ILOC_LOADAI, label, src, NULL, dst, offset);
+}
