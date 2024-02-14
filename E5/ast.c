@@ -127,7 +127,7 @@ void ast_node_print(ast_node *node){
             break;
         case AST_NODE_TYPE_SUBTRACTION:
             strcpy(out_str, "-");
-            break;void
+            break;
         case AST_NODE_TYPE_LESS_THAN:
             strcpy(out_str, "<");
             break;

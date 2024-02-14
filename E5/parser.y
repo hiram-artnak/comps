@@ -10,6 +10,8 @@ extern int get_line_number();
 
 stack *scope_stack = NULL;
 ast_node* current_function = NULL;
+int rbss = 0;
+int rfp = 0;
 %}
 
 %code requires{
@@ -17,6 +19,7 @@ ast_node* current_function = NULL;
     #include "utils.h"
     #include "ast.h"
     #include "stack.h"
+    #include "iloc.h"
     #include "symbol.h"
     #include "hash_table.h"
     #include "linked_list.h"
@@ -108,7 +111,9 @@ program: /* empty */ {
 
 
 
-global_declaration: variable_declaration ';' {}
+global_declaration: variable_declaration ';' {
+    rbss += 4;
+}
     ;
 
 variable_declaration: type identifier_list {
@@ -119,7 +124,8 @@ variable_declaration: type identifier_list {
         ast_node *cur_node = ast_node_list_pop_front($2); 
         fail_if_declared(scope_stack, cur_node); 
         ast_node_set_data_type(cur_node, $1);
-        symbol *sym = symbol_create($1, SYMBOL_TYPE_IDENTIFIER, ast_node_get_lexeme(cur_node), 0);
+        symbol *sym = symbol_create($1, SYMBOL_TYPE_IDENTIFIER, ast_node_get_lexeme(cur_node), rfp);
+        rfp += 4;
         add_symbol_to_current_scope(scope_stack, sym);
     }
 }
@@ -145,13 +151,13 @@ function: function_header function_body {
 }
     ;
 
-function_body: '{' commands close_block { $$ = $2; }
-    ;
-
+function_body: '{' commands close_block { $$ = $2; rfp = rbss; } // A little hack to preserve the value of rfp in the global scope (:
+    ;                                                            // Of course, this would stop working if we had nested functions
+                                                                 // But we don't, so it's fine
 function_header: parameter_list TK_OC_GE type '!' identifier {
     // Add function name
     fail_if_declared(scope_stack, $5); 
-    symbol *sym = symbol_create($3, SYMBOL_TYPE_FUNCTION, ast_node_get_lexeme($5), 0); 
+    symbol *sym = symbol_create($3, SYMBOL_TYPE_FUNCTION, ast_node_get_lexeme($5), 0); // Does not matter where the function is stored
     add_symbol_to_current_scope(scope_stack, sym); 
     $$=$5; ast_node_set_node_type($$, AST_NODE_TYPE_FUNCTION); 
 
@@ -162,9 +168,11 @@ function_header: parameter_list TK_OC_GE type '!' identifier {
     for(int i = 0; i < size; i++){ 
         ast_node *cur_node = ast_node_list_pop_front($1);  
         fail_if_declared(scope_stack, cur_node); 
-        symbol *sym = symbol_create(ast_node_get_data_type(cur_node), SYMBOL_TYPE_IDENTIFIER, ast_node_get_lexeme(cur_node), 0); 
+        symbol *sym = symbol_create(ast_node_get_data_type(cur_node), SYMBOL_TYPE_IDENTIFIER, ast_node_get_lexeme(cur_node), rfp);
+        rfp += 4; 
         add_symbol_to_current_scope(scope_stack, sym); 
-    } 
+    }
+    rfp = 0; // Reset rfp as a new scope was created 
 }
 ;
 
