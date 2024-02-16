@@ -175,7 +175,7 @@ iloc_instr* iloc_or(char* src1, char* src2, char* dst, char* label){
 }
 
 iloc_instr* iloc_storeAI(char* src, char* dst, int offset, char* label){
-    return iloc_instr_create(ILOC_STOREAI, label, src, dst, NULL, offset);
+    return iloc_instr_create(ILOC_STOREAI, label, src, NULL, dst, offset);
 }
 
 char* iloc_instr_to_string(iloc_instr* instr){
