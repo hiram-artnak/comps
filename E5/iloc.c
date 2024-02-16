@@ -127,3 +127,43 @@ char* iloc_make_temp(){
 iloc_instr* iloc_loadAI(char* src, int offset, char* dst, char* label){
     return iloc_instr_create(ILOC_LOADAI, label, src, NULL, dst, offset);
 }
+
+iloc_instr* iloc_sub(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_SUB, label, src1, src2, dst, 0);
+}
+
+iloc_instr* iloc_addI(char* src, char* value, char* dst, char* label){
+    return iloc_instr_create(ILOC_ADDI, label, src, value, dst, 0);
+}
+
+iloc_instr* iloc_subI(char* src, char* value, char* dst, char* label){
+    return iloc_instr_create(ILOC_SUBI, label, src, value, dst, 0);
+}
+
+iloc_instr* iloc_add(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_ADD, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_mult(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_MULT, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_div(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_DIV, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_cmp_LT(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_CMP_LT, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_cmp_LE(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_CMP_LE, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_cmp_EQ(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_CMP_EQ, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_cmp_GE(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_CMP_GE, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_cmp_GT(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_CMP_GT, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_cmp_NE(char* src1, char* src2, char* dst, char* label) {
+    return iloc_instr_create(ILOC_CMP_NE, label, src1, src2, dst, 0);
+}

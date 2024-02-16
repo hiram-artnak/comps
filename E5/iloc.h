@@ -5,7 +5,9 @@
 
 typedef enum ILOC_OP{
     ILOC_ADD,
+    ILOC_ADDI,
     ILOC_SUB,
+    ILOC_SUBI,
     ILOC_MULT,
     ILOC_DIV,
     ILOC_LOAD,
@@ -60,5 +62,18 @@ int iloc_instr_list_size(iloc_instr_list* list);
 
 // Helper build functions
 iloc_instr* iloc_loadAI(char* src, int offset, char* dst, char* label);
+iloc_instr* iloc_sub(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_add(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_mult(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_div(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_addI(char* src, char* value, char* dst, char* label);
+iloc_instr* iloc_subI(char* src, char* value, char* dst, char* label);
+iloc_instr* iloc_cmp_LT(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_cmp_LE(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_cmp_EQ(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_cmp_GE(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_cmp_GT(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_cmp_NE(char* src1, char* src2, char* dst, char* label);
+
 
 #endif
