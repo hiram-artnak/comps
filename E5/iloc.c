@@ -167,3 +167,13 @@ iloc_instr* iloc_cmp_GT(char* src1, char* src2, char* dst, char* label){
 iloc_instr* iloc_cmp_NE(char* src1, char* src2, char* dst, char* label) {
     return iloc_instr_create(ILOC_CMP_NE, label, src1, src2, dst, 0);
 }
+iloc_instr* iloc_and(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_AND, label, src1, src2, dst, 0);
+}
+iloc_instr* iloc_or(char* src1, char* src2, char* dst, char* label){
+    return iloc_instr_create(ILOC_OR, label, src1, src2, dst, 0);
+}
+
+iloc_instr* iloc_storeAI(char* src, char* dst, int offset, char* label){
+    return iloc_instr_create(ILOC_STOREAI, label, src, dst, NULL, offset);
+}

@@ -7,6 +7,7 @@ extern int get_line_number();
 #include "ast.h"
 #include "stack.h"
 #include "hash_table.h"
+#include "iloc.h"
 
 stack *scope_stack = NULL;
 ast_node* current_function = NULL;
@@ -106,6 +107,7 @@ program: /* empty */ {
 
         }
         current_function = $2; $$ = $1;
+        iloc_instr_list_concat(ast_node_get_code($1), ast_node_get_code($2));
     }
     ;
 
@@ -146,6 +148,9 @@ type: TK_PR_INT {
 
 function: function_header function_body {
         ast_node *node = $1;
+        for(int i = 0; i < ast_node_list_size($2); i++){
+            iloc_instr_list_concat(ast_node_get_code(node), ast_node_get_code(ast_node_list_get($2, i)));
+        }
         add_child_from_list(node, $2);
         $$ = node; 
 }
@@ -231,6 +236,16 @@ attribution_command: identifier '=' expression {
         ast_node_add_child(node, $1);
         ast_node_add_child(node, $3);
         $$ = node;
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        char *temporary = iloc_make_temp();
+        ast_node_set_temporary($$, temporary);
+        iloc_instr* make_temp_zero = iloc_sub(temporary, temporary, temporary, NULL);
+        ast_node_add_code($$, make_temp_zero);
+        iloc_instr* add_expr_into_temp = iloc_addI(temporary, ast_node_get_temporary($3), temporary, NULL);
+        ast_node_add_code($$, add_expr_into_temp);
+        iloc_instr* store_temp_into_memory = iloc_storeAI(temporary, "rfp", symbol_get_location(sym), NULL);
+        ast_node_add_code($$, store_temp_into_memory);
+
     }
     ;
 
@@ -335,7 +350,7 @@ unary: primary { $$ = $1; }
     | '!' primary { $$ =  make_unary_expression(AST_NODE_TYPE_LOGICAL_NEGATION, $2, scope_stack);}
     | '-' primary {
         $$ = make_unary_expression(AST_NODE_TYPE_NUMERICAL_NEGATION, $2, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($2));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($2));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* neg = iloc_subI(temporary, "0", ast_node_get_temporary($2), NULL);
@@ -346,8 +361,8 @@ unary: primary { $$ = $1; }
 factor: unary { $$ = $1; }
     | factor '*' unary {
         $$ = make_binary_expression(AST_NODE_TYPE_MULTIPLICATION, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* mult = iloc_mult(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -355,8 +370,8 @@ factor: unary { $$ = $1; }
         }
     | factor '/' unary {
         $$ = make_binary_expression(AST_NODE_TYPE_DIVISION, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* div = iloc_div(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -368,8 +383,8 @@ factor: unary { $$ = $1; }
 term: factor { $$ = $1; }
     | term '+' factor {
         $$ = make_binary_expression(AST_NODE_TYPE_ADDITION, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* add = iloc_add(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -377,8 +392,8 @@ term: factor { $$ = $1; }
     }
     | term '-' factor {
         $$ = make_binary_expression(AST_NODE_TYPE_SUBTRACTION, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* sub = iloc_sub(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -389,8 +404,8 @@ term: factor { $$ = $1; }
 order: term { $$ = $1; }
     | order '<' term {
         $$ = make_binary_expression(AST_NODE_TYPE_LESS_THAN, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* less_than = iloc_cmp_LT(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -398,8 +413,8 @@ order: term { $$ = $1; }
         }
     | order '>' term {
         $$ = make_binary_expression(AST_NODE_TYPE_GREATER_THAN, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* greater_than = iloc_cmp_GT(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -407,8 +422,8 @@ order: term { $$ = $1; }
     }
     | order TK_OC_GE term{ 
         $$ = make_binary_expression(AST_NODE_TYPE_GREATER_EQUAL, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* greater_equal = iloc_cmp_GE(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -416,8 +431,8 @@ order: term { $$ = $1; }
     }
     | order TK_OC_LE term{ 
         $$ = make_binary_expression(AST_NODE_TYPE_LESS_EQUAL, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* less_equal = iloc_cmp_LE(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -428,8 +443,8 @@ order: term { $$ = $1; }
 identity: order { $$ = $1; }
     | identity TK_OC_EQ order{ 
         $$ = make_binary_expression(AST_NODE_TYPE_EQUAL, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* equal = iloc_cmp_EQ(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -437,8 +452,8 @@ identity: order { $$ = $1; }
     }
     | identity TK_OC_NE order{ 
         $$ = make_binary_expression(AST_NODE_TYPE_NOT_EQUAL, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* not_equal = iloc_cmp_NE(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -449,8 +464,8 @@ identity: order { $$ = $1; }
 and_expr: identity { $$ = $1; }
     | and_expr TK_OC_AND identity{
         $$ = make_binary_expression(AST_NODE_TYPE_LOGICAL_AND, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* and = iloc_and(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);
@@ -461,8 +476,8 @@ and_expr: identity { $$ = $1; }
 expression: and_expr { $$ = $1; }
     | expression TK_OC_OR and_expr{
         $$ = make_binary_expression(AST_NODE_TYPE_LOGICAL_OR, $1, $3, scope_stack);
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($1));
-        iloc_list_concat(ast_node_get_code($$), ast_node_get_code($3));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($1));
+        iloc_instr_list_concat(ast_node_get_code($$), ast_node_get_code($3));
         char *temporary = iloc_make_temp();
         ast_node_set_temporary($$, temporary);
         iloc_instr* or = iloc_or(ast_node_get_temporary($1), ast_node_get_temporary($3), temporary, NULL);

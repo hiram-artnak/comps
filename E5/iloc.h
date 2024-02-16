@@ -13,6 +13,7 @@ typedef enum ILOC_OP{
     ILOC_LOAD,
     ILOC_LOADAI,
     ILOC_STORE,
+    ILOC_STOREAI,
     ILOC_I2I,
     ILOC_C2C,
     ILOC_C2I,
@@ -27,7 +28,9 @@ typedef enum ILOC_OP{
     ILOC_JUMP,
     ILOC_LABEL,
     ILOC_NOP,
-    ILOC_HALT
+    ILOC_HALT,
+    ILOC_AND,
+    ILOC_OR
 } ILOC_OP;
 
 
@@ -62,6 +65,7 @@ int iloc_instr_list_size(iloc_instr_list* list);
 
 // Helper build functions
 iloc_instr* iloc_loadAI(char* src, int offset, char* dst, char* label);
+iloc_instr* iloc_storeAI(char* src, char* dst, int offset, char* label);
 iloc_instr* iloc_sub(char* src1, char* src2, char* dst, char* label);
 iloc_instr* iloc_add(char* src1, char* src2, char* dst, char* label);
 iloc_instr* iloc_mult(char* src1, char* src2, char* dst, char* label);
@@ -74,6 +78,8 @@ iloc_instr* iloc_cmp_EQ(char* src1, char* src2, char* dst, char* label);
 iloc_instr* iloc_cmp_GE(char* src1, char* src2, char* dst, char* label);
 iloc_instr* iloc_cmp_GT(char* src1, char* src2, char* dst, char* label);
 iloc_instr* iloc_cmp_NE(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_and(char* src1, char* src2, char* dst, char* label);
+iloc_instr* iloc_or(char* src1, char* src2, char* dst, char* label);
 
 
 #endif
