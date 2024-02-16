@@ -47,6 +47,7 @@ char* iloc_instr_get_src2(iloc_instr* instr);
 char* iloc_instr_get_dst(iloc_instr* instr);
 char* iloc_instr_get_label(iloc_instr* instr);
 int iloc_instr_get_displacement(iloc_instr* instr);
+char* iloc_instr_to_string(iloc_instr* instr);
 char* iloc_make_label();
 char* iloc_make_temp();
 

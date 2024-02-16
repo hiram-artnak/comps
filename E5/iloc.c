@@ -177,3 +177,61 @@ iloc_instr* iloc_or(char* src1, char* src2, char* dst, char* label){
 iloc_instr* iloc_storeAI(char* src, char* dst, int offset, char* label){
     return iloc_instr_create(ILOC_STOREAI, label, src, dst, NULL, offset);
 }
+
+char* iloc_instr_to_string(iloc_instr* instr){
+    char *str = f_malloc(100);
+    switch(instr->op){
+        case ILOC_LOADAI:
+            sprintf(str, "loadAI %s, %d => %s", instr->src1, instr->displacement, instr->dst);
+            break;
+        case ILOC_STOREAI:
+            sprintf(str, "storeAI %s => %s, %d", instr->src1, instr->dst, instr->displacement);
+            break;
+        case ILOC_SUB:
+            sprintf(str, "sub %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_ADDI:
+            sprintf(str, "addI %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_SUBI:
+            sprintf(str, "subI %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_ADD:
+            sprintf(str, "add %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_MULT:
+            sprintf(str, "mult %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_DIV:
+            sprintf(str, "div %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_CMP_LT:
+            sprintf(str, "cmp_LT %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_CMP_LE:
+            sprintf(str, "cmp_LE %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_CMP_EQ:
+            sprintf(str, "cmp_EQ %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_CMP_GE:
+            sprintf(str, "cmp_GE %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_CMP_GT:
+            sprintf(str, "cmp_GT %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_CMP_NE:
+            sprintf(str, "cmp_NE %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_AND:
+            sprintf(str, "and %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        case ILOC_OR:
+            sprintf(str, "or %s, %s => %s", instr->src1, instr->src2, instr->dst);
+            break;
+        default:
+            sprintf(str, "Unknown instruction");
+            break;
+    }
+    return str;
+}
